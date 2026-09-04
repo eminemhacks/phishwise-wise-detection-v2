@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+phishwise/node_modules/
+phishwise-api/node_modules/
+
+# Build outputs
+dist/
+phishwise/dist/
+phishwise-api/dist/
+bw_diagrams/
+humanized-media/
+humanized-media-new/
+*.tmp
+*.log
+
+# Env
+.env
+phishwise/.env
+phishwise-api/.env
+*.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+humanized_*.docx
+humanized*.docx
+*.bak

@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply font-body antialiased;
+  }
+  body {
+    @apply bg-ink-50 text-ink-900 dark:bg-ink-950 dark:text-ink-100 transition-colors;
+  }
+  /* subtle paper grain — barely visible, breaks perfect flat color */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.015;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-signal-500 ring-offset-2 ring-offset-white dark:ring-offset-ink-950 rounded;
+  }
+  ::selection {
+    @apply bg-signal-200 text-ink-900;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl bg-white dark:bg-ink-900 border border-ink-100 dark:border-ink-800 shadow-card;
+  }
+  /* human: uneven card — slight rotation and paper edge */
+  .card-tilt {
+    @apply rounded-[1.75rem] shadow-paper;
+    transform: rotate(-0.35deg);
+  }
+  .card-tilt:nth-child(even) { transform: rotate(0.4deg); }
+  .hand-underline {
+    background: linear-gradient(transparent 60%, rgba(13,159,146,.18) 60%);
+    padding-bottom: 0.05em;
+  }
+  .scribble {
+    font-family: "Caveat", cursive;
+    transform: rotate(-1.2deg);
+    display: inline-block;
+  }
+  .input {
+    @apply w-full rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900
+      px-3.5 py-2.5 text-sm placeholder:text-ink-300 dark:placeholder:text-ink-500
+      focus:border-signal-500 focus:ring-1 focus:ring-signal-500 outline-none transition;
+  }
+  .label {
+    @apply block text-sm font-medium mb-1.5 text-ink-700 dark:text-ink-200;
+  }
+  .skeleton {
+    @apply rounded-lg bg-gradient-to-r from-ink-100 via-ink-50 to-ink-100
+      dark:from-ink-800 dark:via-ink-900 dark:to-ink-800 bg-[length:400px_100%] animate-shimmer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

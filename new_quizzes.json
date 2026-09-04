@@ -1,0 +1,98 @@
+[
+  {
+    "id": "quishing-challenge",
+    "title": "Quishing Challenge",
+    "category": "phishing",
+    "difficulty": "Medium",
+    "minutes": 7,
+    "timed": true,
+    "timeLimit": 300,
+    "description": "QR phishing is 11% of phishing in 2024 -- can you spot a tampered QR?",
+    "questions": [
+      {"type": "mcq", "q": "Why does QR phishing bypass many email gateways?", "options": ["QR images hide the URL from link scanners", "QR codes are encrypted", "Email gateways allow all images", "QR codes are too small to scan"], "answer": 0, "explanation": "Gateways scan visible links. A QR in a PNG/PDF hides the URL in an image -- Barracuda found 500k such emails in 3 months. The link is only revealed after you scan with a phone outside corporate protection."},
+      {"type": "scenario", "q": "SCENARIO: Email from HR with a QR in a PDF: Scan to view benefits update. No link, just a QR. You were not expecting it. Safest action?", "options": ["Scan with phone to check", "Open PDF on laptop then scan", "Verify via HR portal or call HR on known number, don't scan", "Forward to personal email to scan safely"], "answer": 2, "explanation": "QR in PDFs is a classic quishing pattern (Barracuda). Verify via a known channel; don't scan unsolicited QR. Forwarding spreads the image."},
+      {"type": "tf", "q": "A QR code stuck on top of a real parking meter QR (with tape residue) is likely safe if the URL preview shows HTTPS.", "options": ["True", "False"], "answer": 1, "explanation": "False. Overlay is a prime tamper sign (Houston parking). Even HTTPS can be phishing -- the domain matters, not just the padlock. Don't scan overlayed codes."},
+      {"type": "mcq", "q": "27% of QR attacks fake which scenario?", "options": ["Package tracking", "MFA setup required", "Lottery win", "Job offer"], "answer": 1, "explanation": "Abnormal AI: 27% of QR attacks fake MFA setup ('scan to enable MFA'). The urgency (lose access) drives scans. Real MFA setup is initiated by you, not via random QR."},
+      {"type": "scenario", "q": "SCENARIO: You scan a menu QR and it asks for camera, contacts, and location before showing the menu. What do you do?", "options": ["Allow all -- menus need permissions", "Deny and find a menu or type the restaurant's official site", "Allow location only", "Re-scan"], "answer": 1, "explanation": "Excessive permissions is a red flag. A menu needs no contacts. Deny and use the official site or ask staff."},
+      {"type": "mcq", "q": "Best preview habit before tapping a QR link?", "options": ["Tap immediately, check later", "Use native camera preview, verify domain is expected and not misspelled (arnazon vs amazon)", "Use any third-party QR app", "Zoom the QR image"], "answer": 1, "explanation": "Native camera shows the URL. Check for misspellings, long random paths, or non-HTTPS on login pages. Third-party apps may violate privacy."},
+      {"type": "tf", "q": "Real-time QR analysis that extracts and crawls the link can block ~1.5M daily quishing attempts (Microsoft).", "options": ["True", "False"], "answer": 0, "explanation": "True. Inline sandbox + computer vision to decode QR in images/PDFs is how modern email security now catches quishing before delivery."},
+      {"type": "scenario", "q": "SCENARIO: You scanned a QR, entered your Microsoft password, then realized the domain was microsft-login.com. First step?", "options": ["Close tab and forget", "Change that password immediately + enable 2FA + revoke sessions", "Clear cache only", "Wait for IT to notice"], "answer": 1, "explanation": "Stolen creds are used within minutes. Change now, enable MFA, revoke sessions/tokens, and report. Don't wait."}
+    ]
+  },
+  {
+    "id": "deepfake-defense",
+    "title": "Deepfake & Voice Clone Defense",
+    "category": "social-eng",
+    "difficulty": "Hard",
+    "minutes": 8,
+    "timed": false,
+    "description": "AI voices fooled 80% of listeners -- test your resistance to deepfake vishing.",
+    "questions": [
+      {"type": "tf", "q": "Modern AI needs at least 5 minutes of audio to clone a voice.", "options": ["True", "False"], "answer": 1, "explanation": "False. Group-IB: 3 seconds can suffice via ElevenLabs/Tacotron2. That's why a brief 'Hello?' can be enough -- limit public voice samples."},
+      {"type": "scenario", "q": "SCENARIO: Hi, its Dad, I'm in jail, need bail, don't tell Mom, wire now -- voice sounds like Dad, number is Dad's. Best action?", "options": ["Wire immediately -- urgency + familiar voice + caller ID all match", "Call Dad back on his known number and use your family code word", "Ask the caller to prove by describing yesterday's dinner", "Text Dad at the same number to confirm"], "answer": 1, "explanation": "All three signals (voice, number, urgency) can be spoofed. CISA: use a pre-agreed code word + call back on a known number via a separate channel."},
+      {"type": "mcq", "q": "Which defence is NOT effective against deepfake vishing?", "options": ["STIR/SHAKEN caller ID validation", "Voice-only approval for wires", "Multi-factor verification via separate channel", "Code word"], "answer": 1, "explanation": "Voice-only approval is what attackers exploit. STIR/SHAKEN helps, but not universally. Require 2-channel approval."},
+      {"type": "scenario", "q": "SCENARIO: CFO (voice cloned) asks finance to wire 50k to 'new vendor account' and says 'Keep this between us.' Team is busy. Your move?", "options": ["Wire -- CFO authority overrides process", "Check email for approval then wire", "Follow dual-approval: verify via known CFO number + vendor portal, despite urgency", "Ask the caller to send a voice note"], "answer": 2, "explanation": "Urgency + secrecy + authority = BEC/deepfake signature. Mandiant test: busy teams bypassed Edge/SmartScreen under urgency. Follow process, not voice."},
+      {"type": "tf", "q": "Real-time voice cloning (attacker speaks live, you hear cloned voice) is still theoretical and not yet feasible.", "options": ["True", "False"], "answer": 1, "explanation": "False. NCC Group demonstrated real-time voice conversion routing mic -> ML model -> Teams/Meet live. Delay is now low enough to be convincing."},
+      {"type": "mcq", "q": "What percentage of ViKing AI vishing bots succeeded when participants were not warned?", "options": ["33%", "52%", "77%", "90%"], "answer": 2, "explanation": "ViKing study (240 participants): 77% disclosed when not warned, 52% overall, still 33% when strongly warned -- awareness helps but isn't sufficient; need technical controls."},
+      {"type": "scenario", "q": "SCENARIO: You receive a Teams call that looks like your CEO, video is slightly off but voice is perfect, asking to reset a password post-breach. Action?", "options": ["Comply -- video proves identity", "End call, call CEO back on known number, verify via IT ticket", "Ask CEO to turn on camera", "Follow instructions but report after"], "answer": 1, "explanation": "Video can also be deepfaked (NCC is working on syncing audio/video). Always verify via a separate, trusted channel before privileged actions."},
+      {"type": "mcq", "q": "Best long-term reduction of voice exposure?", "options": ["Post more videos to prove real voice", "Limit executive voice online: private LinkedIn/YouTube, no voicemail with full name", "Use voicemail with full name for trust", "Share voice samples publicly to claim ownership"], "answer": 1, "explanation": "Reduce harvestable audio. NCC: executives' public voice is the source. Private settings + no full-name voicemail reduces cloning material."}
+    ]
+  },
+  {
+    "id": "bec-simulation",
+    "title": "BEC Simulation Lab",
+    "category": "phishing",
+    "difficulty": "Hard",
+    "minutes": 9,
+    "timed": true,
+    "timeLimit": 360,
+    "description": "Sniper fraud: $2.9B in 2023. Spot the subtle thread hijack.",
+    "questions": [
+      {"type": "scenario", "q": "SCENARIO: Thread with vendor L.E.K. Consulting -- From: accounts@lekconsultancy.com (registered 21h ago), Reply-To: admin@abpllty.cc (4 months old). DMARC pass (SPF only, no DKIM). CEO 'approves' in quote. Action?", "options": ["Pay -- CEO approved and DMARC passed", "Treat as BEC: DMARC pass on SPF alone is useless for identity; verify From vs Reply-To vs vendor via known portal", "Reply to thread to confirm", "Forward to CEO to confirm"], "answer": 1, "explanation": "Ironscales: DMARC pass on SPF alone says the envelope domain authorises the relay, not that the CEO wrote it. Multiple identities + new domain = BEC. Verify outside email."},
+      {"type": "mcq", "q": "Median BEC loss per Verizon DBIR that makes it dangerous?", "options": ["$5k", "$50k", "$500k", "$5M"], "answer": 1, "explanation": "$50k -- small enough to clear without escalation, hence success. Not 'too small to matter' -- it's designed to be."},
+      {"type": "scenario", "q": "SCENARIO: Finance gets 'Update remittance to new account' inside a real thread with a real vendor. The only change is one digit in the account. Best check?", "options": ["Reply to thread asking 'Is this correct?'", "Call vendor on number on file (not signature) and use vendor portal", "Check email headers for SPF", "Approve if amount < $10k"], "answer": 1, "explanation": "Conversation hijacking: attacker lurks, then edits one line. Call on file + portal change, not email signature which attacker controls."},
+      {"type": "tf", "q": "BEC always contains a malicious link or attachment to scan.", "options": ["True", "False"], "answer": 1, "explanation": "False. Many BECs are pure text (no payload) -- that's why payload scanners miss them. Detection is relationship + language."},
+      {"type": "scenario", "q": "SCENARIO: Houston doggy daycare got invoice on correct letterhead with 'construction' misspelled as 'construciton' in email. Two prior correct wires succeeded. Next step?", "options": ["Wire -- letterhead + prior success proves it", "Inspect sender domain letter-by-letter, call construction on known number, confirm via portal", "Wire small test amount", "Reply asking for W-9"], "answer": 1, "explanation": "Letterhead and prior success are trust anchors attackers exploit. One-letter swap is the tell. Verify out-of-band."},
+      {"type": "mcq", "q": "Which BEC type uses AI to clone voice + display name + urgency?", "options": ["Vendor email compromise", "Gift card scam", "CEO deepfake vishing BEC hybrid", "QR BEC"], "answer": 2, "explanation": "Hybrid BEC + deepfake vishing: AI voice + spoofed ID + urgency. Devices can't verify voice alone."},
+      {"type": "scenario", "q": "SCENARIO: You are accounts payable and see a vendor change after 2 years of same details. Policy says dual-approval. Boss says 'Skip it, we're late.' You?", "options": ["Follow boss -- authority", "Enforce policy: dual-approval anyway, document refusal", "Approve then log", "Ask vendor via email if change is real"], "answer": 1, "explanation": "Policy exists for this exact pressure scenario. Enforce and document. The boss's voice/email could itself be spoofed."},
+      {"type": "tf", "q": "FBI IC3 2023 BEC losses were ~$2.9B from ~21k reports.", "options": ["True", "False"], "answer": 0, "explanation": "True. High loss per report shows targeted, high-value nature vs. mass phishing."}
+    ]
+  },
+  {
+    "id": "nigeria-smishing-lab",
+    "title": "Nigeria Smishing Lab",
+    "category": "mobile",
+    "difficulty": "Medium",
+    "minutes": 7,
+    "timed": false,
+    "description": "BVN, NIN, OTP -- Nigeria-specific traps, from fake alerts to job bait.",
+    "questions": [
+      {"type": "scenario", "q": "SCENARIO: SMS: Your BVN has been blocked. Re-validate: http://nimc-verify.tk/update to avoid deactivation. Your BVN is fine. Action?", "options": ["Tap link to check status", "Delete -- NIMC never asks to re-validate via SMS link; check via *456* or NIMC portal", "Forward to friends to warn", "Reply STOP"], "answer": 1, "explanation": "BVN/NIN blocked is classic smishing. NIMC uses nimc.gov.ng, not .tk. Verify via official short code/portal, never via link."},
+      {"type": "mcq", "q": "Which token will a legitimate Nigerian bank NEVER ask for via phone/SMS?", "options": ["Account number", "OTP / PIN / BVN / NIN", "Branch location", "Account name"], "answer": 1, "explanation": "Banks, telcos, and NIMC never ask for OTP/PIN/BVN/NIN via call/SMS. Any such request = vishing/smishing."},
+      {"type": "scenario", "q": "SCENARIO: Call: This is your bank, we're reversing a debit, read the OTP we just sent. The OTP arrives from your bank's short code. You?", "options": ["Read it -- the code is from your bank", "Hang up, call bank on known number -- the code was triggered by the attacker", "Read last 3 digits only", "Ask caller for staff ID then read"], "answer": 1, "explanation": "The attacker initiated the transaction, causing the bank to send you a real OTP. Reading it completes their transfer. Hang up + call back."},
+      {"type": "mcq", "q": "Job SMS: You have been shortlisted for work-from-home, earn 50k daily, pay 5k processing fee. This is:", "options": ["Legitimate recruitment", "Reward bait / advance-fee job scam", "Government grant", "Marketing"], "answer": 1, "explanation": "Advance-fee job scam: fee for kit/training, then disappearance. Real employers never charge fees and don't interview only via chat."},
+      {"type": "tf", "q": "A text with a link to 'opay-verify.tk' is likely legitimate because it contains 'opay.'", "options": ["True", "False"], "answer": 1, "explanation": "False. Brand in subdomain/path is not the brand. Real OPay is opayweb.com. 'opay-verify.tk' wraps the brand in a disposable .tk."},
+      {"type": "scenario", "q": "SCENARIO: Your line will be barred in 24hrs. Click to link NIN: http://airtel.link-nin.ng -- you already linked. What check?", "options": ["Click to confirm", "Check via *996# or official Airtel app, ignore link", "Forward to family", "Call number in SMS"], "answer": 1, "explanation": "SIM-barring pressure is smishing. Verify via USSD/app you already have, not the link. Check sender vs real Airtel (airtel.com.ng)."},
+      {"type": "mcq", "q": "What makes BVN/NIN solicitation 'anomalous by definition'?", "options": ["They are secret and banks ask often", "No legitimate institution asks for them via unsolicited message", "They expire quickly", "They are not valuable"], "answer": 1, "explanation": "Concentration of Nigerian fraud around BVN/NIN/OTP means any unsolicited request for them is almost certainly phishing -- strong local signal."}
+    ]
+  },
+  {
+    "id": "incident-response-sim",
+    "title": "Incident Response Simulation",
+    "category": "hygiene",
+    "difficulty": "Hard",
+    "minutes": 8,
+    "timed": true,
+    "timeLimit": 360,
+    "description": "You clicked. Now contain it -- fast.",
+    "questions": [
+      {"type": "scenario", "q": "SCENARIO: You entered your password on a fake Microsoft login 2 minutes ago. What is the FIRST action (seconds matter)?", "options": ["Wait to see if email arrives", "Change that password now + revoke sessions + enable 2FA, and do same anywhere reused", "Run antivirus first", "Delete browser history"], "answer": 1, "explanation": "Stolen creds are used within minutes by bots. Change + revoke + 2FA closes the window fastest. Antivirus is next, not first."},
+      {"type": "mcq", "q": "You opened a PDF with a QR that you suspect was quishing. You did NOT enter data. Next step?", "options": ["Nothing -- no data entered", "Close tab, clear cache, run AV, report to SOC/helpdesk with headers", "Forward PDF to colleagues to check", "Re-open to confirm"], "answer": 1, "explanation": "Even without data entry, malware could have loaded. Close, clear, scan, and report with headers. Don't forward payload."},
+      {"type": "scenario", "q": "SCENARIO: Finance just wired 50k to a new account (BEC). It's been 10 minutes. Best containment?", "options": ["Email the vendor to confirm", "Call bank to recall + contact SOC + preserve headers -- speed is critical", "Wait for vendor to confirm receipt", "Reverse via email"], "answer": 1, "explanation": "Wire recall window is minutes before mule laundering. Call bank + SOC now. Email is too slow and may go to attacker."},
+      {"type": "tf", "q": "Staying silent after clicking is better than reporting because you'll get in trouble.", "options": ["True", "False"], "answer": 1, "explanation": "False. Silence turns a near-miss into a breach. Fast reporting lets SOC contain; culture should reward reporters."},
+      {"type": "scenario", "q": "SCENARIO: Your phone shows an MFA push you didn't trigger. You should:", "options": ["Approve to stop notifications", "Deny, change password now, check sessions", "Ignore", "Approve then change later"], "answer": 1, "explanation": "MFA fatigue: attacker has your password and spams pushes hoping you'll approve to stop noise. Deny + change."},
+      {"type": "mcq", "q": "After a breach, which backup is safest to restore from?", "options": ["Connected external drive", "Versioned cloud/offline disconnected backup", "Same laptop's recycle bin", "USB that was connected during attack"], "answer": 1, "explanation": "Ransomware hunts connected drives. Offline/versioned cloud survives. Test restores quarterly."},
+      {"type": "tf", "q": "You should try to 'investigate' the phishing link yourself in a private window.", "options": ["True", "False"], "answer": 1, "explanation": "False. Don't investigate -- you may trigger drive-by or tip off attacker. Report with headers and let SOC sandbox it."}
+    ]
+  }
+]

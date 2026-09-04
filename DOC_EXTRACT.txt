@@ -1,0 +1,1122 @@
+DESIGN AND IMPLEMENTATION OF AN EXPLAINABLE PHISHING DETECTION AND GAMIFIED MICRO-LEARNING PLATFORM FOR ENHANCING PHISHING AWARENESS AND CYBER HYGIENE
+BY
+ALABURA ISMAIL ALIYU
+FCP/CSS/22/1056
+DEPARTMENT OF CYBER SECURITY
+FACULTY OF COMPUTING
+FEDERAL UNIVERSITY DUTSE
+JUNE, 2026
+DESIGN AND IMPLEMENTATION OF AN EXPLAINABLE PHISHING DETECTION AND GAMIFIED MICRO-LEARNING PLATFORM FOR ENHANCING PHISHING AWARENESS AND CYBER HYGIENE
+BY
+ALABURA ISMAIL ALIYU
+FCP/CSS/22/1056
+BEING A RESEARCH PROJECT SUBMITTED TO THE DEPARTMENT OF CYBER SECURITY, FACULTY OF COMPUTING, FEDERAL UNIVERSITY DUTSE, IN PARTIAL FULFILMENT OF THE REQUIREMENTS FOR THE AWARD OF BACHELOR OF SCIENCE (B.Sc.) DEGREE IN CYBER SECURITY.
+JUNE, 2026
+[Heading1] DECLARATION
+
+I hereby declare that this project is the product of my own research work, carried out under the supervision of Mr. Sadiq Aliyu Ahmad. It has not been presented elsewhere, in whole or in part, for the award of any degree or certificate. All sources of information and material used have been duly acknowledged by means of references.
+____________________________                                        ____________________
+ALABURA ISMAIL ALIYU                                                                                  Date
+FCP/CSS/22/1056
+[Heading1] CERTIFICATION
+
+This project has been read and approved as meeting the requirements of the Department of Cyber Security, Faculty of Computing, Federal University Dutse, for the award of the Bachelor of Science (B.Sc.) degree in Cyber Security.
+____________________________                                        ____________________
+Mr. Sadiq Aliyu Ahmad                                                                     Date
+Project Supervisor
+____________________________                                        ____________________
+Dr. Farouk Lawan Gambo                                                                 Date
+Head of Department
+____________________________                                        ____________________
+External Examiner                                                                     Date
+[Heading1] DEDICATION
+
+This work is dedicated to my family, whose steady support made it possible, and to every internet user who has ever hesitated over a suspicious link and wished that something could simply tell them why it looked wrong.
+[Heading1] ACKNOWLEDGEMENT
+
+My sincere gratitude goes to my supervisor, Mr. Sadiq Aliyu Ahmad, whose guidance, patience and constructive criticism shaped both the direction and the rigour of this work. I am grateful to the Head of the Department of Cyber Security, Dr. Farouk Lawan Gambo, and to the academic and technical staff of the Faculty of Computing, Federal University Dutse, for the foundation on which this project was built.
+I thank the colleagues and respondents who took part in the requirements survey and who contributed examples of the scam messages that circulate locally. Their input shaped the signal catalogue at the heart of this system more directly than any textbook could have.
+Above all, I thank my family for their unwavering support throughout the course of this programme.
+[Heading1] LIST OF TABLES
+
+Table 2.1: Principal Phishing Delivery Vectors	12
+Table 2.2: Comparison of Automated Phishing-Detection Approaches	16
+Table 2.3: Mapping of Theoretical Constructs to Design Decisions	23
+Table 2.4: Review of Representative Existing Systems	24
+Table 3.1: Summary of the Database Schema	33
+Table 3.2: Signal Categories and Their Weight Ranges	42
+Table 3.3: Functional Requirements	45
+Table 3.4: Non-Functional Requirements	45
+Table 4.1: Implementation Technology Stack	48
+Table 4.2: Detection-Engine Test Corpus Results	58
+Table 4.3: Representative Scan Results	60
+Table 4.4: Application-Level Verification Activities	59
+[Heading1] LIST OF FIGURES
+
+Figure 2.1: Anatomy of a Deceptive URL	14
+Figure 2.2: Taxonomy of Anti-Phishing Countermeasures	15
+Figure 2.3: Conceptual Framework — The Detection–Education Loop	19
+Figure 3.1: Three-Tier System Architecture	30
+Figure 3.2: Context Diagram (Data-Flow Level 0)	31
+Figure 3.3: Data-Flow Diagram (Level 1)	32
+Figure 3.4: Entity Relationship Diagram	32
+Figure 3.5: Use Case Diagram	35
+Figure 3.6: Activity Diagram — Analysing an Artefact	37
+Figure 3.7: Sequence Diagram — An Authenticated Scan	38
+Figure 3.8: Class Diagram — The Detection Subsystem	39
+Figure 3.9: The Detection Pipeline	40
+Figure 3.10: The Scoring Model and Verdict Bands	41
+Figure 4.1: Landing Page with the Public Detector	50
+Figure 4.2: Explained Result of a URL Scan	51
+Figure 4.3: Message Scan with an Extracted Link	52
+Figure 4.4: Scan History	53
+Figure 4.5: Learner Dashboard	54
+Figure 4.6: Achievements and Detection Badges	54
+Figure 4.7: Administrative Detection Analytics	56
+Figure 4.8: Confusion Matrix and Corpus Composition	58
+[Heading1] TABLE OF CONTENTS
+
+The entries below are generated automatically. In Microsoft Word, select the list and press F9 (or right-click and choose "Update Field") to refresh the page numbers.
+[Heading1] LIST OF ABBREVIATIONS
+
+Abbreviation
+Meaning
+API
+Application Programming Interface
+APWG
+Anti-Phishing Working Group
+BVN
+Bank Verification Number
+DDR
+Design and Development Research
+DFD
+Data-Flow Diagram
+ERD
+Entity Relationship Diagram
+HTTP / HTTPS
+Hypertext Transfer Protocol (Secure)
+IDN
+Internationalised Domain Name
+JSON
+JavaScript Object Notation
+JWT
+JSON Web Token
+ML
+Machine Learning
+NIN
+National Identification Number
+ORM
+Object–Relational Mapping
+OTP
+One-Time Password
+PMT
+Protection Motivation Theory
+REST
+Representational State Transfer
+SCAM
+Suspicion, Cognition and Automaticity Model
+SDT
+Self-Determination Theory
+SLD
+Second-Level Domain
+SMS
+Short Message Service
+SPA
+Single-Page Application
+TLD
+Top-Level Domain
+UML
+Unified Modelling Language
+URL
+Uniform Resource Locator
+UUID
+Universally Unique Identifier
+XP
+Experience Points
+[Heading1] DEFINITION OF BASIC TERMS
+
+Phishing: a social-engineering attack in which an adversary impersonates a trusted party in order to induce a victim to disclose sensitive information or perform an unsafe action.
+Detection: the automated examination of an artefact — here a URL or a message — in order to estimate and communicate the likelihood that it is a phishing attempt.
+Heuristic (rule-based) detection: detection that applies transparent, human-authored rules to observable features of an artefact, rather than a statistical model inferred from data.
+Signal: a single named rule in the detection catalogue, consisting of a predicate that decides whether it fires, a fixed weight, a plain-language explanation, a category, and the lessons that teach the trick it detects.
+Risk score: a bounded measure of suspicion on a 0–100 scale, formed by summing the weights of the signals that fired on an artefact.
+Verdict: the qualitative band into which a risk score falls: Safe, Suspicious, Likely Phishing or Dangerous.
+Registrable domain: the portion of a host name that a party actually registers and therefore controls, comprising the second-level domain and its public suffix — the part of a URL that truly determines its destination.
+Explainability: the property whereby each output of a system can be traced to, and justified by, specific inputs and rules that a human can inspect and understand.
+Micro-learning: instruction delivered in short, self-contained units designed to be completed in a few minutes.
+Gamification: the use of game-design elements such as points, badges, levels and streaks in non-game contexts in order to motivate sustained engagement.
+Cyber hygiene: the routine practices an individual adopts to maintain the security of their digital activities.
+Teachable moment: an interval in which a learner is unusually receptive to instruction because they have just encountered a concrete, personally relevant instance of the problem it addresses.
+[Heading1] ABSTRACT
+
+Phishing persists because it targets human judgement rather than technical defect. Two established countermeasures each fail at a different point. Awareness training is proactive but abstract: it reaches users long before the decisive moment and decays thereafter. Automated detection is timely but opaque: it returns a verdict the user cannot interrogate and from which they learn nothing, and most detectors depend on a remote service and are untuned to the scams that dominate the Nigerian context. This study argues that explanation is the bridge between them, because a detector that can articulate why it fired is already an instrument of instruction, and every detection becomes a teachable moment. Following a Design and Development Research methodology, the study designed, implemented and evaluated an explainable phishing-detection platform in which gamified micro-learning is a consequence of detection rather than a parallel feature. The engine applies twenty-three transparent signals, covering brand impersonation, URL obfuscation, credential harvesting and Nigeria-specific vishing, smishing and reward-bait scripts, to a submitted URL or message. It returns a bounded risk score defined as the capped sum of the weights of the signals that fired, an interpretable verdict band, an itemised justification for every point awarded, a recursive analysis of each link embedded in a message, and the lessons that teach whichever trick was caught. The system was modelled with use-case, activity, sequence, class, data-flow and entity-relationship diagrams, and realised as a three-tier application using React, NestJS and PostgreSQL, with the engine isolated as a framework-free, offline and deterministic module. Evaluation against a labelled corpus returned the correct verdict band on all twenty cases. The study argues that this establishes conformance to specification rather than generalisation, and identifies an independent large-scale corpus and a machine-learning second opinion as the principal future work.
+[Heading1] CHAPTER ONE: INTRODUCTION TO THE STUDY
+
+[Heading2] 1.1 Background of the Study
+
+The migration of banking, commerce, government identity and social life onto digital platforms has produced a corresponding migration of crime. Among the threats that have followed, phishing has proved the most durable. It is the fraudulent solicitation of sensitive information, or the inducement of an unsafe action, by an adversary impersonating a party the victim already trusts.
+Its persistence is instructive. Phishing endures not because cryptography is weak or protocols are broken, but because it bypasses technical controls altogether and addresses itself to human judgement. The Anti-Phishing Working Group (2024) continues to record phishing among the most frequently reported attack categories worldwide, and it remains a common precursor to large-scale compromise.
+That phishing succeeds is not simply a matter of user carelessness. Recent empirical work on how users make e-mail response decisions shows that the sender cues on which people rely are precisely the cues an attacker controls, so that convincing forgeries deceive even attentive readers (Jayatilaka, Arachchilage, & Babar, 2024).
+The difficulty runs deeper than momentary inattention. Users reason about electronic messages using mental models drawn from ordinary correspondence, models that do not encode the adversarial possibilities of the medium, and reviews of the human factors in phishing find that even users explicitly primed to look for deception detect only a fraction of it (Alkhalil, Hewage, Nawaf, & Khan, 2021).
+The uncomfortable conclusion is that the artefact of a phishing attack — a URL, a message — carries the evidence of its own deception, but that evidence is legible only to someone who knows exactly where to look.
+Two families of countermeasure have developed in response, and they are usually pursued independently of one another. The first is education: awareness campaigns, embedded training and, more recently, game-based and micro-learning approaches that teach users to recognise deception. Recent studies confirm that gamified delivery improves engagement, self-efficacy and secure behaviour relative to conventional instruction (Bitrián, Buil, Catalán, & Merli, 2024).
+The second family is automated detection: list-based lookups, heuristic analysis, machine-learning classifiers and hybrids of these, surveyed comprehensively in the recent literature on the detection of phishing websites (Zieni, Massari, & Calzarossa, 2023).
+Each family fails at a different point, and the failures are complementary. Education is proactive but abstract. It reaches the user in a classroom or a training module, days or months before the decisive moment, and asks them to retain a general principle until an unspecified future instant at which it will matter.
+Its effects are known to decay without reinforcement; empirical analysis of learning and forgetting in security-awareness programmes finds that the protection they confer can revert towards its starting level within months (Sikolia, Biros, & Zhang, 2023). Awareness campaigns frequently fail to change behaviour at all, because knowing is not the same as noticing.
+Detection, conversely, is timely but opaque. It acts at exactly the moment that matters, when a suspicious item is in front of the user, but the typical detector returns a bare verdict, or a probability, that the user can neither interrogate nor learn from. The user is told what to think and not why.
+Over time this trains dependence rather than competence. A detector that is silent about its reasoning protects the user on this one occasion and leaves them exactly as vulnerable as before.
+This study takes the position that the distance between the two families is not a gap in coverage but a gap in explanation. The information a user would need in order to learn is already present at the moment of detection: the detector knows which features of the artefact were suspicious, and why. What is ordinarily discarded is the reasoning.
+If that reasoning is preserved and expressed in language the user can understand, the detector ceases to be merely a filter and becomes an instrument of instruction. Every detection then becomes a teachable moment — a real threat, addressed to a real user, at the one instant when their motivation to understand it is highest. Explanation, in short, is the bridge.
+The position draws direct support from the literature on explainable detection, which shows that a model able to expose which features drove its judgement produces intelligible predictions a user can act upon, and that this intelligibility is what converts an output into warranted rather than blind trust (Calzarossa, Giudici, & Zieni, 2024).
+The Nigerian context sharpens the argument. Financial identity here is concentrated in a small number of high-value tokens — the Bank Verification Number, the National Identification Number, and the one-time passwords that guard mobile banking — and local fraud has organised itself precisely around their theft (Mangut & Datukun, 2021).
+The characteristic attacks are a telephone call from a purported account officer requesting an OTP in order to reverse a transaction; a text message announcing that a BVN has been blocked and must be revalidated through a link; a message declaring a telecommunications prize; and a fabricated job offer aimed at a large population of young jobseekers.
+These scripts are culturally and linguistically specific. A detector curated abroad models neither their vocabulary nor the brands they impersonate, and a list-based service will not yet have seen the disposable domain registered this morning to support one of them. A detection instrument intended to be useful here must model this threat surface explicitly, and must be able to operate without depending on a remote service being reachable and current.
+This project therefore designs and implements a platform whose primary capability is explainable phishing detection, tuned to the local threat context, and whose gamified micro-learning is not a parallel feature but the destination to which every detection leads.
+[Heading2] 1.2 Statement of the Problem
+
+Everyday internet users in Nigeria are exposed to phishing that is culturally specific, financially targeted and frequently successful, and the countermeasures available to them address the problem only partially.
+Awareness and training platforms, including gamified ones, teach phishing in the abstract. They are not present at the moment a suspicious link or message actually arrives, they ask users to generalise from synthetic examples to real ones, and their effect decays over time. They cannot answer the only question a user actually asks in the moment, which is whether this particular item, now in front of them, is safe.
+Automated detectors act at that moment but withhold their reasoning. A verdict without a justification cannot be audited by the user, cannot be disputed, and above all cannot be learned from; it produces compliance rather than competence, and fosters dependence on the tool. Most available detectors additionally depend on a live connection to a remote reputation service, which makes them unreliable where connectivity is poor and ineffective against domains newly registered for a single campaign. Nor are they tuned to Nigerian scam scripts, brands or identity tokens.
+The consequence is a population that is simultaneously under-protected and under-taught. No accessible system unifies the two functions so that each strengthens the other: detection that explains itself well enough to teach, and education that is delivered at the exact moment the user has demonstrated a need for it. This study addresses that absence.
+[Heading2] 1.3 Objectives of the Study
+
+The aim of this study is to design, implement and evaluate an explainable, rule-based phishing-detection platform, tuned to the Nigerian threat context, in which every detection is coupled to the micro-learning that explains it. The specific objectives are to:
+[ListParagraph] formalise a transparent scoring model that maps observable indicators in a URL or a message onto a bounded risk score and an interpretable verdict band, such that every point of the score is attributable to exactly one named rule;
+[ListParagraph] develop a catalogue of detection signals covering structural deception in URLs, manipulative language in messages, and the vishing, smishing and reward-bait scripts specific to the Nigerian context, each carrying a plain-language justification;
+[ListParagraph] design and implement the detection engine as a self-contained, offline and deterministic module, with a typed extension point at which a machine-learning second opinion could later be added without disturbing the rules;
+[ListParagraph] integrate detection with contextual micro-learning and server-authoritative gamification, so that the signals which fire on an artefact determine the lessons the user is offered;
+[ListParagraph] implement the surrounding platform, comprising public and authenticated detection, scan history, lessons, quizzes, progress tracking and administrative analytics; and
+[ListParagraph] evaluate the engine against a labelled corpus of known-phishing and known-legitimate artefacts, and verify the platform through build, render and end-to-end testing.
+[Heading2] 1.4 Research Questions
+
+The study is guided by the following research questions:
+[ListParagraph] how can the suspicion attached to a URL or a message be quantified in a way that is bounded, reproducible and attributable to individual, human-readable rules?
+[ListParagraph] which observable indicators distinguish phishing from legitimate artefacts in the Nigerian context, and what relative weight should each carry?
+[ListParagraph] how can a detection engine be structured so that it remains explainable and operable offline while leaving a principled path to future machine-learning enhancement?
+[ListParagraph] how can the output of detection be used to select and deliver the instruction that a user has demonstrably just needed?
+[ListParagraph] to what extent does the implemented engine assign correct verdicts to a labelled corpus of phishing and legitimate artefacts, and what may legitimately be concluded from that result?
+[Heading2] 1.5 Research Hypotheses
+
+This study is a design-and-development investigation rather than an experimental one. Its object is the construction and evaluation of an artefact, and it therefore does not advance statistical hypotheses about a sampled population; no inferential test is performed and none is reported. In place of statistical hypotheses, the study advances three design propositions, each falsifiable by the evaluation reported in Chapter Four:
+[ListParagraph] a purely additive, capped scoring model over human-authored rules is sufficient to separate phishing from legitimate artefacts across the study’s corpus without recourse to a trained classifier;
+[ListParagraph] the reasoning that produces a verdict can be surfaced to the user as an itemised, plain-language justification without any loss of accuracy in that verdict; and
+[ListParagraph] the signals that fire on an artefact constitute sufficient information to select relevant instruction automatically, making a separate diagnostic assessment of the user unnecessary.
+The status of each proposition is revisited in Section 5.3.
+[Heading2] 1.6 Significance of the Study
+
+For everyday internet users, the study offers an immediate and intelligible second opinion on a suspicious link or message, delivered without an account and without dependence on a remote service. Because the verdict is itemised, the user is placed in a position to verify the reasoning rather than merely obey it, and to carry that reasoning forward to the next artefact they encounter.
+For education, the study contributes a working demonstration that instruction can be scheduled by evidence of need rather than by a syllabus. The signals that fire on a real artefact identify precisely which misconception placed the user at risk, and the platform answers with the lesson that addresses it. This converts a corrective control into a pedagogical one.
+For the discipline, the study contributes an explicit account of a detection model that is fully attributable — every point of every score traces to one inspectable rule — together with a signal catalogue that models Nigerian scam scripts, a class of threat under-represented in the international literature and in commercial products alike.
+For the institution and for future researchers, the artefact provides a documented, tested and extensible base. Its rules, brand list and weights are data rather than logic, and its machine-learning extension point is typed and documented, so that subsequent work can extend the catalogue, enlarge the corpus, or introduce a statistical second opinion without reconstructing the system.
+[Heading2] 1.7 Scope and Limitation of the Study
+
+[Heading3] 1.7.1 Scope of the Study
+
+The study covers the design, implementation and evaluation of a web-based platform with the following extent. Detection accepts two classes of artefact: a URL, and the text of a message such as an electronic mail, an SMS or an instant message. It returns a 0–100 risk score, a verdict band, an itemised list of the signals that fired with the weight and plain-language reason for each, the analysis of every link extracted from a message, and the lessons associated with those signals.
+Detection is available publicly without an account and, for authenticated users, with a persistent scan history. The learning subsystem provides seeded micro-lessons and quizzes, contextual lesson recommendations driven by detection output, and server-authoritative gamification comprising experience points, levels, badges and streaks. An administrative subsystem provides content and user management, learning and detection analytics, and a read-only view of the rule catalogue.
+The evaluation reported covers the correctness of the engine against a labelled corpus, the successful production build of both applications, an automated headless render of every screen in both learner and administrator roles, and an end-to-end exercise of the running system against a live database.
+[Heading3] 1.7.2 Limitations of the Study
+
+The following limitations are stated explicitly; the more consequential of them are revisited in Sections 4.8.3 and 5.4.
+[ListParagraph] the engine is heuristic. It reasons from observable indicators and can therefore produce both false positives and false negatives. It is designed as a second opinion and not as a guarantee, and the interface states this on every result;
+[ListParagraph] detection is confined to URLs and message text. The system does not retrieve, render or execute the page at the end of a link, and it does not open attachments. Establishing whether a live page is malicious would require sandboxed execution and is deliberately outside the scope of this project;
+[ListParagraph] the brand list, keyword lists and top-level-domain lists are curated rather than exhaustive, and are weighted towards Nigerian financial and telecommunications targets. Coverage outside that surface is correspondingly weaker;
+[ListParagraph] no machine-learning component is implemented. The choice is deliberate and is defended in Section 3.4.3; the extension point for such a component is provided but left inert;
+[ListParagraph] the evaluation corpus is small and was authored by the researcher alongside the rules it exercises. It therefore establishes that the engine conforms to its specification, and cannot establish generalisation to phishing in the wild; and
+[ListParagraph] the study makes no longitudinal measurement of learning gain. Whether the detection–education loop durably improves user judgement is an empirical question requiring a controlled study with human participants over time, which is beyond the scope of this work and is recommended as future research.
+[Heading2] 1.8 Definition of Terms
+
+The following terms are used throughout this report in the specific senses given below.
+Phishing: a social-engineering attack in which an adversary impersonates a trusted party to obtain sensitive information or induce an unsafe action.
+Vishing: phishing conducted by, or soliciting, a voice telephone call — characteristically a caller claiming to be a bank official who requests a one-time password.
+Smishing: phishing delivered by SMS, characteristically an alert that an account or identity token has been blocked and must be revalidated.
+Signal: a single named rule in the detection catalogue, comprising a predicate, a fixed weight, a plain-language explanation, a category, and the lessons that teach the trick it detects.
+Risk score: a bounded 0–100 measure of suspicion computed as the capped sum of the weights of the signals that fired on an artefact.
+Verdict: the band into which a risk score falls: Safe, Suspicious, Likely Phishing or Dangerous.
+Registrable domain: the second-level domain together with its public suffix — the portion of a URL that determines the true destination and that an attacker must actually register.
+Look-alike domain: a registrable domain that is not legitimate for a brand but is confusable with it, whether by misspelling, character substitution, or the embedding of the brand name within a longer name.
+Explainable detection: detection whose every output can be traced to specific, inspectable rules and communicated to the user in language they understand.
+Teachable moment: the interval, immediately following a real detection, in which a user is unusually receptive to the instruction that explains it.
+Micro-learning: instruction delivered in short, self-contained units completable in a few minutes.
+Gamification: the application of game-design elements such as points, badges, levels and streaks to a non-game context in order to sustain engagement.
+Cyber hygiene: the routine practices an individual adopts to maintain the security of their digital activities.
+[Heading1] CHAPTER TWO: REVIEW OF RELATED LITERATURE
+
+[Heading2] 2.1 Introduction
+
+This chapter reviews the literature that bears on the problem stated in Chapter One. It is organised around a single claim, which the review is intended to establish: that the research on phishing has developed two mature but separate traditions.
+One tradition teaches users; the other detects on their behalf. The boundary between them is maintained not by any technical necessity but by the fact that detectors habitually discard their reasoning.
+The chapter first establishes the conceptual ground, examining what phishing is, how it is delivered, where the evidence of deception resides in an artefact, and how automated detection has attempted to find it. It then argues that explainability is not a usability refinement but the property that allows a detector to teach.
+It then sets out the theoretical framework, drawing on the psychology of why users are deceived and of how instruction is retained, and closes by reviewing representative existing systems and identifying the gap this study addresses.
+[Heading2] 2.2 Conceptual Framework
+
+[Heading3] 2.2.1 The Concept of Phishing
+
+Phishing is a form of social engineering in which an adversary assumes the identity of a trusted party in order to induce a victim to surrender information or perform an action against their own interest (Alkhalil, Hewage, Nawaf, & Khan, 2021).
+The definition is worth stating carefully, because two of its features determine everything that follows. First, the attack targets the victim rather than the system: it requires no software vulnerability and is therefore unaffected by patching, encryption or access control.
+Second, it is a deception about identity, which means the attacker must construct an artefact that resembles a legitimate one while differing from it in at least one respect that the infrastructure can detect. That residue of difference — a domain that is not quite right, a request no genuine institution would make — is the entire basis on which automated detection is possible.
+Phishing is also an economically rational and highly adaptive activity, in which attackers iterate rapidly against whatever defence is deployed. Analyses of the phishing life cycle show that a substantial share of the damage occurs within the first hours of a campaign, before defensive infrastructure has observed and catalogued it (Zieni, Massari, & Calzarossa, 2023).
+This finding is significant for the present study. It establishes that any defence which depends on having previously seen an attack is structurally late, and that detection which reasons from the properties of an artefact rather than its reputation is therefore not merely an alternative but a necessary complement.
+[Heading3] 2.2.2 Delivery Vectors and the Nigerian Threat Landscape
+
+Although phishing originated in electronic mail, it has diversified across every channel that carries a link or a message. Table 2.1 summarises the principal vectors together with the form each takes in the Nigerian context, which is the threat surface this study models explicitly.
+Table 2.1: Principal Phishing Delivery Vectors
+Vector
+Channel
+Characteristic form in the Nigerian context
+Email phishing
+Electronic mail
+Impersonated bank or service notice directing the user to a look-alike login page
+Spear phishing
+Targeted mail
+Message tailored to an individual using details harvested from social media
+Smishing
+SMS
+Alert that a BVN or NIN has been blocked or must be revalidated through a link
+Vishing
+Voice call
+Caller posing as an account officer requesting an OTP to "reverse" a fraudulent debit
+Reward bait
+SMS / social
+Telecommunications promotion or lottery declaring the recipient a winner
+Employment bait
+SMS / social
+Fabricated shortlisting or offer requiring a fee or personal data
+Clone phishing
+Mail / social
+A legitimate message reproduced with its links replaced
+The Nigerian variants share a structural property that is central to this study’s design. Each is organised around the theft of one of a small number of concentrated identity tokens — the BVN, the NIN, and the OTP — rather than around a generic credential. Studies of the Nigerian environment confirm that vishing and smishing, rather than the email-based attacks that dominate developed economies, are the most prevalent techniques locally (Mangut & Datukun, 2021).
+This concentration is an opportunity for detection. A message that solicits any of these tokens is anomalous almost by definition, because no legitimate institution requests them through an unsolicited message. A detector that models these tokens explicitly therefore acquires a strong and locally specific indicator that a generic, internationally curated detector does not possess.
+[Heading3] 2.2.3 The Anatomy of Deception in URLs and Messages
+
+If detection is to reason from an artefact, it is necessary to establish where in that artefact the evidence of deception resides. For a URL, the answer is precise and follows from the structure of the domain name system.
+A host name is a hierarchy read from right to left: the rightmost labels form the public suffix, the label immediately to its left is the second-level domain, and together these constitute the registrable domain — the only part an attacker must actually purchase, and the part that determines where the request is sent. Everything to the left of the registrable domain consists of subdomain labels which the holder of that domain may set to any value at no cost, and everything after the first single slash is a path, likewise arbitrary.
+The deception exploits the mismatch between this structure and the way human beings read. Users read left to right, and attackers therefore place the trusted brand on the left. Figure 2.1 dissects a representative example.
+The string begins with a recognisable bank name, and a reader scanning from the left encounters the brand first and is reassured; but the registrable domain, and therefore the destination, is an unrelated address that the attacker owns. The same principle generates the whole family of URL deceptions catalogued later in this report: brand names placed in subdomains, look-alike registrable domains produced by character substitution, the userinfo construction that places a plausible string before an at-sign that the browser then discards, percent-encoding that conceals the host, and shorteners that defer resolution entirely.
+Figure 2.1: Anatomy of a Deceptive URL
+This figure carries a second significance for the present study, and it is worth making explicit. The annotations that explain the deception to a reader are exactly the annotations a detector must compute in order to identify it. The act of detecting and the act of teaching draw on the same analysis; only the presentation differs. This observation is the seed of the framework developed in Section 2.2.7.
+For messages, the evidence is linguistic and pragmatic rather than structural. The manipulation operates through recognisable levers of influence — authority, urgency, scarcity, fear and reward — which recur across phishing corpora and which recent work catalogues as a repeatable social-engineering strategy (Khadka, Ullah, Ma, Marroquin, & Alem, 2023).
+A message asserts an authority it does not have, imposes a deadline that forecloses deliberation, and demands an action that a legitimate counterpart would never request. These features are observable in the text itself, which is why lexical and phrase-level analysis remains effective even without reference to the sender’s reputation.
+[Heading3] 2.2.4 Approaches to Automated Phishing Detection
+
+The literature on automated detection is extensive, and recent surveys provide a comprehensive organisation of it (Zieni, Massari, & Calzarossa, 2023; Basit, Zafar, & Abbas, 2023). The approaches may be organised as in Figure 2.2, which also situates the present study within the space.
+Figure 2.2: Taxonomy of Anti-Phishing Countermeasures
+List-based methods compare an artefact against maintained registers of known-bad or known-good addresses. The approach is fast, cheap at the point of use and produces very few false positives.
+Its structural weakness is that it cannot recognise what it has not yet catalogued, and the window in which a campaign does its damage frequently precedes cataloguing. It additionally requires a live connection to a remote service.
+Heuristic or rule-based methods examine features of the artefact itself, such as the use of a raw IP address in place of a host name, the presence of a brand name in a subdomain, the age or form of a domain, or the presence of urgent or credential-soliciting language, and combine these observations into a judgement.
+Because the features are computed from the artefact rather than looked up, these methods can flag an attack the first time it is seen, and, of the greatest importance to this study, their reasoning is expressible: a rule that fires can say what it saw. Their weaknesses are that the rules and their weights must be authored by a human and can be evaded by an attacker who knows them, and that they cannot capture patterns their author did not anticipate.
+Machine-learning methods infer a classifier from labelled examples. Such methods can discover discriminative structure that no author would have specified, and adapt as the distribution shifts.
+Their costs are a representative labelled dataset, a training and serving pipeline, and, most consequentially for the present problem, an output that resists explanation: a probability emitted by a learned model does not decompose into reasons a user can act on or learn from without the further apparatus of explainability techniques (Calzarossa, Giudici, & Zieni, 2024).
+Visual-similarity methods compare the rendered appearance of a page against known legitimate pages. These methods necessarily retrieve and render the target page, which places them outside the scope of the present study, whose engine deliberately does not fetch remote content.
+Hybrid approaches combine two or more of the above and represent the state of practice in commercial products, at the cost of complexity. Table 2.2 compares the approaches on the dimensions that determine the choice made in this study.
+Table 2.2: Comparison of Automated Phishing-Detection Approaches
+Approach
+Detects unseen attacks
+Explains its verdict
+Works offline
+Principal cost
+List-based
+No
+No
+No
+Structurally late; needs a live remote list
+Heuristic / rule-based
+Yes
+Yes
+Yes
+Rules hand-authored; evadable if known
+Machine learning
+Yes
+Not natively
+Yes, once trained
+Needs a labelled dataset and a pipeline
+Visual similarity
+Yes
+Partly
+No
+Must fetch and render the target page
+Hybrid
+Yes
+Varies
+Varies
+Highest complexity to build and maintain
+The comparison identifies the heuristic approach as the only one that simultaneously satisfies the three constraints this study derives from its problem statement: it can flag a domain registered this morning, it can operate where connectivity is poor, and — decisively — it can say why. That third property is examined next.
+[Heading3] 2.2.5 Explainability as a Design Requirement
+
+Explainability is usually treated in the security literature as a matter of usability or of trust calibration. Surveys of explainable artificial intelligence in cybersecurity hold that a good explanation is not the disclosure of a system’s internal state but a selective, contrastive account, framed in terms the person already possesses (Capuano, Fenza, Loia, & Stanzione, 2022).
+Work on explainable detection further shows that intelligibility is what allows a user to decide when to rely on a model and when to override it, converting output into warranted rather than blind trust (Calzarossa, Giudici, & Zieni, 2024).
+This study advances a stronger claim. In the specific case of phishing, an explanation of a detection is not merely a justification for it; it is the lesson.
+When a detector reports that a domain is one character removed from a bank’s real domain, that a link is disguised behind an at-sign, or that a message requests an OTP that no bank would ever ask for, it has stated a general principle and simultaneously demonstrated it on a concrete instance the user cared enough about to check. This is precisely the structure of effective instruction.
+The corollary is that a detector which suppresses its reasoning is not merely less usable; it is discarding, at the moment of maximum pedagogical value, the very material that education spends its budget trying to manufacture synthetically.
+The claim also has a defensive dimension. Operators of automated aids are known to drift towards uncritical reliance, and this reliance is most damaging exactly when the aid fails. A heuristic detector will sometimes be wrong. Studies that apply explainable artificial intelligence to phishing susceptibility find that surfacing the reasons behind a judgement measurably changes how users weigh and act on it (Fan, Li, Laskey, & Chang, 2024).
+A user who has only ever been given verdicts has no basis on which to notice; a user who has been given reasons can weigh them, and retains the capacity to judge when the tool is unavailable or mistaken. Explanation is therefore also the mechanism by which a detector avoids making its users worse.
+[Heading3] 2.2.6 Micro-Learning and Gamification
+
+The educational tradition establishes what should be delivered once the detector has identified the need. A short interactive exercise that teaches URL structure produces measurable improvement over conventional material, and training delivered at the moment of failure is especially effective, though its effect decays without reinforcement.
+Micro-learning responds to the constraint that attention is scarce, delivering instruction in units short enough to be completed rather than deferred. Gamification supplies the reinforcement that counteracts decay; recent evidence shows that gamified security e-training raises learners’ self-efficacy and measurably improves their behaviour when confronted with real phishing (Bitrián, Buil, Catalán, & Merli, 2024).
+The same work cautions that the effect depends on context and on whether the mechanics support genuine competence rather than merely decorate the activity with points.
+The present study adopts each of these findings but inverts their usual sequencing. In the existing literature, training is scheduled by a curriculum and validated by a subsequent test. Here it is scheduled by the detector: the user is offered the lesson on look-alike domains because a look-alike domain was just found in something they submitted.
+The central insight of embedded training — that the moment of failure is the moment of maximum receptivity — is thereby generalised. A detection is a near-failure, and it is available continuously and at no risk to the user, whereas a simulated failure must be manufactured by the institution and can be delivered only occasionally.
+[Heading3] 2.2.7 Conceptual Framework of the Study
+
+The foregoing review supports a framework in which detection and education are not parallel services but successive stages of one loop, joined by explanation. Figure 2.3 presents it.
+Figure 2.3: Conceptual Framework — The Detection–Education Loop
+The loop begins when a user submits an artefact they already find doubtful; that doubt is the motivational precondition on which everything downstream depends. The engine detects, assigning a bounded score and a verdict. It then explains, itemising each rule that fired, the weight it contributed and the reason in plain language.
+The explanation identifies, without any separate diagnostic, exactly which principle the user did not have, and the platform teaches it by surfacing the corresponding micro-lesson. Reinforcement follows through quizzes and the gamified economy, which exist to counteract the decay of learning over time.
+The final stage is internalisation, at which the user recognises the pattern unaided; the loop is drawn as returning to its origin because the intended end state is a user who consults the tool less often, not more.
+Two properties of the framework are worth stating plainly. First, education is a consequence of detection within it, not a sibling of it; the detector is what schedules the teaching. Second, the framework is falsifiable at its weakest joint, which is the claim that the signals which fire constitute sufficient information to select the right instruction. That claim is stated as a design proposition in Section 1.5 and is examined in Section 5.3.
+[Heading2] 2.3 Theoretical Framework
+
+The conceptual framework describes what the system does. This section grounds it in established theory, drawing on two bodies of work: the psychology of why users are deceived, which motivates the design of the detector, and the psychology of how instruction is retained, which motivates the design of the learning loop.
+The theories invoked below — dual-process cognition, protection motivation, situated learning, self-determination and automation bias — are long-established and are treated here as the common scientific background of the field rather than as the contribution of any single recent source. Where a contemporary study bears directly on their application to phishing, it is cited; otherwise the theory is used as settled knowledge.
+[Heading3] 2.3.1 Dual-Process Cognition and Suspicion
+
+Dual-process accounts of cognition distinguish a fast, automatic, heuristic mode of processing from a slow, deliberate and effortful one. Phishing is an attack upon the first.
+Routine electronic correspondence is processed almost entirely automatically, and the attacker’s craft consists of supplying exactly the surface cues — a familiar logotype, a plausible sender, a brand name at the left of a URL — that permit automatic processing to complete without ever engaging deliberation. Empirical study of how users make e-mail response decisions confirms that susceptibility rises with habitual, high-volume, automatic reading of messages (Jayatilaka, Arachchilage, & Babar, 2024).
+Deception is averted only when something triggers suspicion and thereby recruits deliberate attention. This has a direct design implication, and it is the theoretical justification for the detector’s existence in this system: the intervention that matters is not more knowledge in the abstract but a reliable trigger of deliberation at the moment of exposure.
+A detector is such a trigger. Its verdict interrupts automatic processing; its explanation then supplies the deliberate mode with something to work on.
+[Heading3] 2.3.2 Protection Motivation
+
+Protection Motivation Theory holds that protective behaviour is a joint function of threat appraisal — the perceived severity of a hazard and one’s vulnerability to it — and coping appraisal — the belief that an available response is effective and that one is capable of performing it.
+The theory explains the persistent failure of awareness campaigns: such campaigns raise threat appraisal, often vividly, while leaving coping appraisal untouched, producing users who are alarmed but not more capable.
+The framework of this study addresses both terms simultaneously, and this is its principal theoretical warrant. The verdict raises threat appraisal, and does so with a concrete instance rather than a statistic. The itemised explanation raises response efficacy, because the user can see that the check works and can verify it themselves.
+The lesson and its reinforcement raise self-efficacy, because the user acquires a procedure they can execute unaided. A bare verdict, by contrast, addresses only threat appraisal — which is precisely why an opaque detector, on this theory, should not be expected to produce durable protective behaviour.
+[Heading3] 2.3.3 Situated Learning and the Teachable Moment
+
+Situated accounts of learning argue that knowledge is not the transfer of abstract propositions into a mind but a process embedded in the activity and context in which the knowledge is used, and that knowledge acquired apart from its context of application tends to remain inert.
+Conventional awareness training is, in these terms, structurally disadvantaged: it teaches about phishing in a setting in which no phishing is occurring and no consequence attaches to failure.
+The detection–education loop restores the situation. The lesson on look-alike domains is delivered while a look-alike domain is on the screen, in an artefact the user themselves supplied and cared about. The instruction is therefore situated in exactly the activity in which it must later be applied, which is the condition situated learning identifies as necessary for transfer.
+[Heading3] 2.3.4 Self-Determination and Reward
+
+Self-Determination Theory holds that durable motivation arises when activity satisfies the needs for competence, autonomy and relatedness, and that extrinsic rewards support motivation when they signal competence but undermine it when they are experienced as control.
+The theory therefore constrains the design of the gamified layer rather than merely licensing it, and contemporary evidence bears this out: gamified security training improves behaviour most reliably when its rewards are tied to demonstrated competence rather than mere participation (Bitrián, Buil, Catalán, & Merli, 2024).
+Rewards in this system are attached to demonstrated competence — catching a genuine threat, completing a lesson — and are deliberately calibrated so that the reward for using the detector is smaller than the reward for learning, in order that the economy cannot be farmed by mechanical scanning. Autonomy is preserved by the explanation itself: because the user is shown the reasoning rather than merely instructed, they retain the standing to disagree with the tool.
+[Heading3] 2.3.5 Automation Bias and the Risk of the Intervention
+
+It would be incomplete to marshal only theory that supports the design. The literature on human interaction with automation distinguishes use, misuse, disuse and abuse of an automated aid, and shows that a reliable aid reliably produces over-reliance.
+A phishing detector is subject to exactly this hazard: a user who consults it habitually may cease to look at all, and will then be maximally exposed on the occasion when the heuristic fails. This is a genuine risk of the intervention proposed here and it is not fully eliminated by it.
+The design responds in three ways, each of which is an application of the theory rather than a mitigation invented after the fact. The interface states on every result that the verdict is heuristic and not a guarantee. The explanation is itemised so that the user is always shown the grounds rather than only the conclusion, preserving their capacity to evaluate. And the loop is explicitly oriented towards its own redundancy, terminating in internalisation rather than in continued consultation.
+Whether these measures are sufficient is an empirical question that this study cannot settle, and it is recorded as such in Section 5.4.
+[Heading3] 2.3.6 Synthesis
+
+Table 2.3 maps each theoretical construct onto the design decision it warrants, so that the relationship between the framework and the artefact is explicit and auditable.
+Table 2.3: Mapping of Theoretical Constructs to Design Decisions
+Construct
+Design decision it warrants
+Automatic processing drives susceptibility
+A detector is provided as an explicit trigger of deliberation at the moment of exposure
+Threat appraisal without coping appraisal fails
+Every verdict is accompanied by an itemised, checkable justification and an actionable lesson
+Explanation is contrastive and human
+Each signal states what was seen and why it is wrong, not the internal computation
+Intelligibility calibrates trust
+Additive scoring, so every point is attributable to one named rule
+Learning must be situated
+Lessons are selected by the signals that fired on the user’s own artefact
+Reinforcement counters decay
+Quizzes, streaks and badges sustain rehearsal after the detection
+Rewards must signal competence
+Scanning is rewarded less than learning; bonuses attach to genuine catches
+Automation induces over-reliance
+Heuristic status is stated on every result; the loop targets its own redundancy
+[Heading2] 2.4 Review of Related Systems
+
+Table 2.4 reviews representative classes of system from both traditions against the criteria this study derives from its problem statement. The selection is intended to be representative of each category rather than exhaustive.
+Table 2.4: Review of Representative Existing Systems
+System class
+Category
+Contribution
+Limitation for the present problem
+Large-scale blacklist services
+List-based detection
+Large-scale, low false positives, ubiquitous
+Cannot see a new domain; needs a live connection; gives no reasons
+Community blacklists
+Crowd-sourced detection
+Crowd-sourced corpus of confirmed phishing
+Reactive; coverage of local domains is thin
+Content and visual-similarity detectors
+Similarity-based detection
+High accuracy from page content and lexical features
+Must fetch and render the page; not usable offline
+Client-side machine-learning detectors
+Learned detection
+Real-time, client-side, high accuracy
+Model output is not natively explainable; needs training data
+Game-based awareness tools
+Game-based education
+Demonstrated learning gain on URL structure
+Teaches in the abstract; cannot assess a real artefact
+Embedded / simulated-phishing training
+Embedded training
+Establishes value of teaching at the moment of failure
+Requires simulated attacks run by an institution; decays
+Commercial awareness platforms
+Simulation and training
+Programme management and reporting at scale
+Enterprise-oriented; inaccessible to individuals; not a detector
+Two patterns are evident. First, no system in either tradition performs both functions: the detectors do not teach, and the trainers cannot assess a real artefact submitted by a user.
+Second, every system that detects is either dependent on a remote service, incapable of explaining itself, or both, and none models the Nigerian scam scripts identified in Section 2.2.2.
+[Heading2] 2.5 Summary and Uniqueness of the Study
+
+The literature establishes that phishing succeeds by exploiting automatic cognition; that education improves recognition but is abstract, decays, and is absent at the decisive moment; that detection is present at that moment but is typically opaque, remotely dependent and culturally generic; and that explanation is what converts an output into something a person can use and trust.
+Each of these findings is well supported individually. What the literature does not contain is their conjunction.
+This study is unique in four respects. First, it treats explanation as the architectural bridge between detection and education rather than as a presentational courtesy, and derives the whole design from that position: education is a consequence of detection, scheduled by it.
+Second, it adopts a scoring model that is deliberately and completely attributable — a capped additive sum over named rules — accepting a ceiling on sophistication in exchange for the property that every point of every score can be justified to the user, which is the property on which the pedagogical claim depends.
+Third, its signal catalogue models the Nigerian threat surface explicitly, including vishing scripts, BVN and NIN revalidation lures, telecommunications reward bait and employment bait, alongside the structural URL deceptions treated in the international literature.
+Fourth, it is engineered for the conditions in which it must actually run: the engine performs no network call and no model inference, so that it is deterministic, private and available irrespective of connectivity, while retaining a typed extension point at which a machine-learning second opinion may later be introduced.
+The chapter that follows translates this position into a system analysis and design.
+[Heading1] CHAPTER THREE: SYSTEM ANALYSIS AND DESIGN
+
+[Heading2] 3.1 Introduction
+
+This chapter translates the position established in Chapter Two into a specification. It states the methodology and the techniques by which requirements were established, analyses the systems that presently address the problem and their deficiencies, describes the proposed system and justifies its central design choices, and then presents the design itself through the standard models: use-case, activity, sequence and class diagrams, together with the architectural, data-flow and data models, and a formal specification of the detection engine. The chapter closes with the functional and non-functional requirements and the output specification.
+The study follows a Design and Development Research methodology, which is appropriate because the object of the enquiry is the construction and evaluation of an artefact rather than the testing of a hypothesis about a population.
+The methodology proceeds through analysis, design, development and evaluation, and it admits iteration: the signal weights presented in Section 3.5.5 were revised during development in response to the test corpus described in Chapter Four, and the design is reported as it stands after that iteration.
+[Heading2] 3.2 Requirements Analysis Techniques
+
+Requirements were established through four complementary techniques, each chosen to address a class of requirement the others could not reach.
+A review of the academic literature and of industry reporting, as set out in Chapter Two, established the functional envelope of existing detection and training systems and the criteria against which this system should be judged. It supplied, in particular, the finding that no reviewed system both detects and teaches, which became the system’s defining requirement.
+An analysis of existing systems, summarised in Table 2.4 and Section 3.4, established the specific deficiencies to be remedied: opacity, remote dependence and cultural genericity in the detectors, and the inability to assess a real artefact in the trainers.
+Artefact analysis was the technique that most directly determined the design of the engine. A collection of phishing messages and links circulating locally — contributed by respondents and drawn from the researcher’s own correspondence — was examined in order to identify the observable features that recur in them. This is the source of the signal catalogue: each rule in the catalogue exists because a pattern was observed in a real artefact, and the vishing, smishing and reward-bait signals in particular are direct generalisations of scripts collected in this way rather than transcriptions from the literature.
+A structured questionnaire administered to students and everyday internet users established the user-facing requirements: prior exposure to the scams identified above, the degree of confidence respondents held in their own ability to identify phishing, and their receptiveness to short, gamified instruction as against conventional training material. The instrument is reproduced in Appendix I.
+The requirements gathered were consolidated into the functional and non-functional statements of Sections 3.6 and 3.7. Development followed an iterative, incremental process in which the engine, being the component on which every other depends, was constructed and tested first in isolation, and the surrounding application was built around it.
+[Heading2] 3.3 Method of Data Collection
+
+[Heading3] 3.3.1 Primary Source
+
+Primary data comprised two distinct sets. The first was the questionnaire responses described above, which informed the user-facing requirements and confirmed the prevalence of the local scam scripts among the target population. The second, and the more consequential for the artefact, was the collection of authentic phishing messages and links contributed by respondents and colleagues. These artefacts were examined feature by feature to determine what, concretely, distinguishes them from legitimate correspondence; the resulting observations were generalised into the predicates of the signal catalogue and became the basis of the test corpus reported in Chapter Four.
+[Heading3] 3.3.2 Secondary Source
+
+Secondary data were drawn from peer-reviewed literature on phishing susceptibility, detection and security education, as reviewed in Chapter Two; from the reporting of the Anti-Phishing Working Group on prevailing attack trends; from the technical documentation of the frameworks and libraries employed; and from the published behaviour of existing anti-phishing services, which informed the comparison in Table 2.4 and the design of the optional Safe Browsing enrichment.
+[Heading2] 3.4 Description of the Existing System
+
+There is no single incumbent system to displace. The problem is presently addressed, partially, by two disjoint classes of system, each reviewed in Section 2.4: automated detectors, which act at the moment of exposure, and awareness or training platforms, which act before it. The analysis that follows treats these two classes together, because the deficiency this study addresses lies precisely in the space between them.
+[Heading3] 3.4.1 Problems of the Existing System
+
+The deficiencies established by the review are as follows.
+[ListParagraph] opacity of detection. Detectors return a verdict or a probability without grounds. The user cannot audit the judgement, cannot dispute it, and cannot learn from it; the interaction produces compliance rather than competence and, over repeated use, dependence;
+[ListParagraph] structural lateness. List-based services can recognise only what has already been catalogued, while a substantial part of the harm occurs before cataloguing (Zieni, Massari, & Calzarossa, 2023). A domain registered for a single campaign is invisible to them at exactly the time it matters;
+[ListParagraph] remote dependence. Detection that requires a live lookup is unavailable when connectivity is poor, and discloses the user’s browsing to a third party;
+[ListParagraph] cultural genericity. Internationally curated detectors model neither the Nigerian brands that are impersonated nor the identity tokens — BVN, NIN, OTP — around which local fraud is organised, and consequently miss the region’s most common attacks;
+[ListParagraph] abstraction of training. Awareness and game-based platforms teach in the absence of any real threat, requiring the user to generalise from synthetic examples to live ones, and their effects decay without reinforcement (Sikolia, Biros, & Zhang, 2023);
+[ListParagraph] absence at the decisive moment. No training platform can answer the question the user actually has, which concerns this artefact, now; and
+[ListParagraph] institutional gating. Embedded-training approaches of the PhishGuru type depend on an organisation to run simulated campaigns, which places them out of reach of the individual user this study addresses.
+[Heading3] 3.4.2 Description of the Proposed System
+
+The proposed system is a web platform whose primary capability is explainable phishing detection and whose learning subsystem is driven by it. A user — with or without an account — submits a URL or the text of a message.
+A rule-based engine evaluates the artefact against a catalogue of twenty-three signals and returns a bounded risk score, a verdict band, and an itemised statement of every rule that fired, each with the weight it contributed and a plain-language reason. Where the artefact is a message, every link it contains is extracted and analysed in its own right, and the worst of them contributes a bounded amount to the message’s score.
+The signals that fired then determine which micro-lessons the user is offered. For an authenticated user the scan is persisted to a personal history and rewarded through the gamification subsystem; for an anonymous user nothing is stored.
+Architecturally the system is organised into three tiers, presented in Figure 3.1.
+Figure 3.1: Three-Tier System Architecture
+The presentation tier is a React single-page application. The application tier is a NestJS REST API organised into modules by domain, of which the detection module is the subject of this study. The data tier is a PostgreSQL database accessed through an object–relational mapper.
+The property of this architecture that matters most is visible at the centre of the figure: the detection engine is a framework-free module. It imports nothing from NestJS, performs no database access and issues no network request. It is a pure function from an input string to a result object.
+This isolation is a deliberate design decision with three consequences — the engine can be unit-tested without any infrastructure, it can be reasoned about line by line, and it is deterministic, so that a given input always yields an identical score. Determinism is what makes the explanation trustworthy: a justification that could change between two identical requests would not be a justification.
+Two external services appear in the figure and both are optional. A Google Safe Browsing lookup may be enabled by configuration to contribute one additional signal; if the key is absent or the call fails, the engine silently falls back to its offline rules and the scan remains fully valid. An SMTP service delivers verification mail. Neither is on the critical path of a scan, which is a requirement rather than an accident: the system must work when the network does not.
+Figure 3.2 presents the system’s context, establishing its boundary and the external entities with which it exchanges data.
+Figure 3.2: Context Diagram (Data-Flow Level 0)
+Three human entities are distinguished. The Visitor is unauthenticated and may submit an artefact and receive an explained verdict, but nothing is recorded. The Learner is authenticated and additionally receives persistence and reward. The Administrator manages content and users and consumes analytics. The distinction between Visitor and Learner is a deliberate design position rather than an implementation detail: requiring an account before a user may check a suspicious link would place a barrier precisely where urgency is highest, and would exclude the casual user the study is intended to serve.
+Figure 3.3 decomposes the single process of the context diagram into its major processes and the stores they act upon.
+Figure 3.3: Data-Flow Diagram (Level 1)
+The flow that carries the study’s thesis is the one from process 2.0 to process 4.0, labelled with the mapping from triggered signals to related lessons. It is what makes the loop of Figure 2.3 a data flow rather than a metaphor: the output of detection is literally the input that selects instruction. Note also that the path from 2.0 to 3.0 is conditional upon authentication, which is where the public and persistent variants of a scan diverge.
+The data model is presented in Figure 3.4 and summarised in Table 3.1.
+Figure 3.4: Entity Relationship Diagram
+Two features of the schema warrant comment. First, the foreign key from scans to users is nullable. This is the mechanism by which a public scan is expressed in the data model: an anonymous scan submitted through the landing page is either not persisted at all or, if persisted, carries no owner, and the design therefore cannot accidentally associate an artefact with a person who did not consent to that association.
+Second, the full result of a scan is retained as a JSON document alongside the scalar score and verdict. The scalar columns support efficient aggregation for analytics, while the document preserves the complete itemised justification exactly as it was shown to the user. Because the weights may be re-tuned in a later version, storing the reasoning rather than recomputing it is what allows a historical scan to remain an honest record of what the user was actually told.
+Table 3.1: Summary of the Database Schema
+Table
+Purpose
+Principal columns
+users
+Accounts, roles and status
+id, email, password_hash, role, status, email_verified
+scans
+Persisted detection results
+id, user_id (nullable), input_type, input, score, verdict, threat, result
+progress
+One-to-one learning and reward state
+user_id, xp, completed_lessons, badges, streak, last_active_date
+auth_tokens
+Verification and reset tokens
+id, user_id, token_hash, type, expires_at, consumed_at
+lessons
+Seeded micro-lesson content
+id, category, title, minutes, xp, blocks, published
+quizzes
+Seeded quiz content
+id, category, title, questions, timed, published
+quiz_attempts
+Record of quiz performance
+id, user_id, quiz_id, score, total, pct, xp
+categories
+Content taxonomy
+id, name, icon, colour, sort
+[Heading3] 3.4.3 Justification for the Proposed System
+
+Two design choices determine the character of the system and both require defence, since in each case a more sophisticated alternative was available and was rejected.
+The first is the choice of a rule-based engine over a machine-learning classifier. The comparison in Table 2.2 records that a learned model would likely achieve superior raw discrimination and would adapt to distributional shift without a human editing rules. It was nevertheless rejected, for a reason that follows directly from the thesis of this study rather than from convenience.
+The system’s claim is that the explanation of a detection is the lesson. A rule-based engine produces its explanation as a by-product of its operation: the set of rules that fired is simultaneously the score and the justification, and the two cannot diverge. A learned model produces a probability, from which an explanation can be recovered only approximately and only by additional apparatus such as post-hoc surrogate models — an explanation that is a reconstruction of the model’s behaviour rather than an account of it (Calzarossa, Giudici, & Zieni, 2024).
+For a system whose pedagogical claim rests on the fidelity of its explanations, that distinction is not academic. A model that is ninety-five per cent accurate but cannot say why is, for this purpose, less useful than a rule set that is less accurate and can.
+Secondary considerations reinforce the choice: no labelled corpus of Nigerian phishing exists at the scale a classifier would require, and constructing one was beyond the resources of the project; the rule engine requires no training pipeline and is auditable by a supervisor or examiner in a way a set of learned weights is not. The choice is nonetheless a real trade-off with a real cost, which is recorded in Section 1.7.2 and revisited in Section 5.4, and the architecture leaves a typed seam at which a model may later be added as a second opinion.
+The second is the choice of an additive, capped scoring model over a probabilistic or multiplicative combination. A Bayesian combination of indicators would in principle produce a better-calibrated estimate of the posterior probability that an artefact is malicious. It was rejected because the resulting number would not decompose.
+A user shown a score of eighty-three cannot verify a posterior; a user shown a score of one hundred can be shown that it is forty plus twenty-two plus eighteen plus twelve plus twelve, capped, and can check each term against the artefact in front of them. Additivity purchases attributability, and attributability is what the explanation requires. The cost of this choice is that the score is an ordinal measure of accumulated evidence and not a probability, and it is stated as such wherever it appears; the implications of the cap are discussed in Section 3.5.5.
+The remaining choices follow from the operating context. The engine is offline because connectivity is unreliable and because a detector that discloses every link a user checks to a third party is an unacceptable privacy posture for a security tool. Detection is offered without an account because the moment of need is not the moment to demand registration. Gamification is server-authoritative because any reward computed in the browser can be forged.
+[Heading2] 3.5 System Design
+
+[Heading3] 3.5.1 Use Case Diagram
+
+Figure 3.5 presents the use cases, grouped into the detection, learning and administration bands and related to the three human actors and the optional external service.
+Figure 3.5: Use Case Diagram
+The actor hierarchy encodes the access model directly: the Learner inherits every capability of the Visitor and adds persistence and reward, and the Administrator inherits from the Learner and adds management and analytics.
+The two relationships that carry design intent are the inclusion of the explained result within the act of analysing — the explanation is not an optional elaboration of a verdict but a constituent of it — and the inclusion of the award of experience and badges within the saving of a scan, which is what makes detection a first-class source of reward alongside learning. The consultation of Safe Browsing extends analysis rather than being included in it, which states in the model that the system’s behaviour is complete without it.
+[Heading3] 3.5.2 Activity Diagram
+
+Figure 3.6 presents the flow of an analysis from submission to explained result.
+Figure 3.6: Activity Diagram — Analysing an Artefact
+The activity forks after normalisation according to the type of the artefact. The URL branch evaluates the fifteen structural predicates. The message branch evaluates the eight lexical and pragmatic predicates, and additionally extracts every link the text contains and submits each to the URL branch, the recursion being shown by the return edge in the figure.
+The branches join, the weights of the fired signals are summed and capped, the sum is mapped onto a band, and the signals are used to select the related lessons. Only then is authentication consulted, and this ordering is deliberate: the analysis and its explanation are identical for every user, and identity determines only whether the outcome is recorded and rewarded. A public scan and a persisted scan can therefore never disagree.
+[Heading3] 3.5.3 Sequence Diagram
+
+Figure 3.7 traces the interactions of an authenticated scan across the participating components.
+Figure 3.7: Sequence Diagram — An Authenticated Scan
+The figure shows the engine performing the whole of its work within its own lifeline, in self-directed messages, and returning a completed result before any repository or reward participant is engaged. This is the sequence-level expression of the architectural isolation described in Section 3.4.2. Persistence and reward are consequences of a scan and not participants in it; the engine neither knows nor can know whether its caller intends to store the result. The note records the public variant, which omits the final two participants entirely.
+[Heading3] 3.5.4 Class Diagram
+
+Figure 3.8 presents the static structure of the detection subsystem.
+Figure 3.8: Class Diagram — The Detection Subsystem
+The controller exposes the endpoints and enforces authentication; the service composes the engine with persistence and reward; and the engine composes the two analyzers with the scoring model and the signal catalogue.
+The relationship between the message analyzer and the URL analyzer is one of reuse rather than duplication: a link inside a message is analysed by exactly the same code that analyses a link submitted directly, which is what guarantees that the two paths cannot diverge in their judgement.
+Two participants are drawn as detached from the operational path. The Safe Browsing service is optional and its absence is unremarkable. The second-opinion provider is an interface with no implementation — the typed seam recorded in Section 3.4.3 — and it is included in the model because a documented extension point is a design commitment, and because it fixes the shape any future model must take: a provider returns a score that is blended with the rule score, and cannot silently displace the rules or the explanation they produce.
+[Heading3] 3.5.5 Design of the Detection Engine
+
+This section specifies the engine formally. It is the core contribution of the study and is presented in the order in which data traverse it: the pipeline, the scoring model, the signal catalogue, the treatment of links embedded in messages, and the look-alike domain algorithm.
+Figure 3.9 presents the pipeline.
+Figure 3.9: The Detection Pipeline
+An artefact is normalised, routed by type to one of two analyzers, reduced to a set of triggered signals, scored, banded, and returned together with the lessons the signals imply. The pipeline contains no network call, no model inference and no mutable state, which is what secures the determinism required in Section 3.4.2.
+The scoring model is defined as follows. Let x be an artefact and let S be the catalogue of signals. Each signal i in S comprises a predicate σᵢ, which decides whether the signal fires on x, and a fixed weight wᵢ. The risk score is
+score(x) = min( 100 , Σᵢ∈S wᵢ · 𝟙[ σᵢ(x) ] )
+where 𝟙[·] is the indicator function. The verdict is the band into which the score falls, the bands being Safe for 0 to 24, Suspicious for 25 to 49, Likely Phishing for 50 to 74 and Dangerous for 75 to 100. Figure 3.10 presents the model together with its calibration and a worked example.
+Figure 3.10: The Scoring Model and Verdict Bands
+The model is deliberately the simplest construction that satisfies the study’s requirements, and each of its three properties is load-bearing. It is additive, so that the contribution of every rule is separable and can be displayed beside the rule that produced it. It is monotone, so that additional evidence can never reduce suspicion, which is the property a user intuitively expects. It is bounded, so that the output is comparable across artefacts and can be banded.
+The band thresholds are not arbitrary; they are calibrated against the weights so that the bands mean something stable. The intended semantics are that a single strong indicator should raise an artefact to Suspicious but not condemn it — a look-alike domain alone contributes forty, which lands in the Suspicious band — while two strong indicators together should reach Likely Phishing, and an artefact exhibiting a stack of independent indicators should reach Dangerous.
+Weights were assigned by a two-stage procedure. Each signal was first placed in an ordinal tier reflecting how strongly its presence implies malice in isolation: a dangerous URL scheme or a look-alike registrable domain is nearly dispositive, whereas the absence of HTTPS or an unusual length is merely corroborative and common in benign artefacts. Numerical values were then assigned within tiers so that the intended band semantics held over the corpus of collected artefacts, and were revised during development where a case fell outside its expected band.
+The cap requires an explicit caveat, which is stated here and repeated wherever the score is reported. Because the sum is capped, a score of one hundred is a floor on severity rather than a measure of it: an artefact whose weights sum to one hundred and four and one whose weights sum to two hundred are reported identically. The score is therefore an ordinal measure of accumulated evidence and must not be read as a probability. The worked example in Figure 3.10 illustrates this directly, its five signals summing to one hundred and four before capping.
+The catalogue comprises twenty-three signals: fifteen that apply to URLs and eight that apply to messages. Each is a record rather than code, carrying an identifier, a human-readable label, a plain-language explanation, a weight, a category, and the identifiers of the lessons that teach the trick it detects. This structure is what allows the same declaration to serve three purposes at once — deciding the score, explaining it to the user, and selecting the instruction — and it is the mechanism by which the framework of Figure 2.3 is realised in code. Table 3.2 summarises the categories; the complete catalogue with every weight is reproduced in Appendix II.
+Table 3.2: Signal Categories and Their Weight Ranges
+Category
+Applies to
+Weights
+What it captures
+Brand impersonation
+URL
+26 – 40
+Look-alike registrable domains; a brand placed in a subdomain
+Obfuscation
+URL
+15 – 45
+Dangerous schemes, homoglyphs, the @-trick, percent-encoding, shorteners, random hosts
+URL structure
+URL
+8 – 30
+Raw IP hosts, high-risk TLDs, excessive subdomains, excessive length
+Credential harvesting
+URL, message
+12 – 30
+Security words planted in a domain, credential paths, solicitation of OTP, PIN, BVN or NIN
+Transport security
+URL
+12
+Absence of HTTPS on a page soliciting credentials
+Vishing
+Message
+32
+Scripts directing the recipient to telephone and disclose a code
+Smishing
+Message
+28
+Fabricated alerts of a blocked BVN or NIN; employment bait
+Reward bait
+Message
+24
+Prize, lottery and promotional lures
+Urgency
+Message
+18
+Deadlines and threats that foreclose deliberation
+Social engineering
+Message
+10
+Generic, impersonal greetings
+Formatting
+Message
+8
+Grammatical and typographic anomalies
+Messages are related to the URLs they contain by a bounded transfer, which requires its own specification because a naive treatment would be unsound. Let m be a message, let L(m) be the set of links extracted from it, and let each link be analysed by the URL pipeline in its own right. Let ŵ be the link in L(m) whose verdict is most severe. The message score is
+score(m) = min( 100 , Σⱼ∈Sₘ wⱼ · 𝟙[ σⱼ(m) ]  +  τ(ŵ) )
+where the transfer function τ contributes 35 if the worst link is Dangerous, 25 if Likely Phishing, 12 if Suspicious, and 0 otherwise. Three properties of this construction are deliberate. Only the worst link contributes, so that a message containing many suspicious links is not scored more harshly than the evidence warrants merely by repetition.
+The transfer is also bounded and strictly less than the maximum a URL may itself attain, so that a link cannot unilaterally saturate the score of the message that carries it; the message’s own language must corroborate. And the transfer is expressed as one further signal in the itemised list rather than as an adjustment to the arithmetic, so that the user is shown the link, its own verdict, and the points it contributed, and the explanation remains complete.
+The look-alike algorithm is the most substantial single rule in the catalogue and is specified in full. Let d be the registrable domain of the artefact, s its second-level label, and B the brand catalogue, each brand b comprising a keyword k and a set of legitimate domains Lᵦ. Let δ denote the de-confusion map, which normalises the characters an attacker substitutes for visual similarity: rn to m, vv to w, 0 to o, 1 to l, 3 to e, 4 to a, 5 to s, 7 to t, 8 to b and the dollar sign to s. Let lev denote Levenshtein edit distance. The procedure is:
+if d ∈ ⋃ᵦ Lᵦ  then  return  — the domain is legitimate; no impersonation check applies
+for each brand b = (k, Lᵦ) ∈ B:
+    if ∃ label l ∈ subdomains(d) such that l = k or δ(l) = k:
+        fire url-brand-in-subdomain (weight 26); stop
+    dist   ← min( lev(s, k), lev(δ(s), k) )
+    θ(k)   ← max( 1, ⌊ |k| / 5 ⌋ )
+    typo   ← ( 0 < dist ≤ θ(k) )  or  ( δ(s) = k  and  s ≠ k )
+    wrap   ← ( k ⊑ s  or  k ⊑ δ(s) )  and  s ≠ k  and  ( "-" ∈ s  or  |s| > |k| + 1 )
+    if typo or wrap:  fire url-lookalike-brand (weight 40); stop
+Three aspects of this procedure merit comment. The allowlist guard on the first line is the system’s principal defence against false positives, and its placement is not incidental: because a brand’s own domain is by construction within edit distance zero of its keyword, omitting the guard would cause every legitimate bank domain to be flagged as an impersonation of itself. It is the single most important line in the algorithm.
+The threshold θ(k) is adaptive rather than fixed, and scales with the length of the brand keyword. A fixed threshold cannot serve both a three-character keyword such as uba and a ten-character keyword such as zenithbank: a distance of two is a plausible typographical error in the latter but, in the former, admits a large number of unrelated three-letter domains. Dividing by five and taking the floor, with a minimum of one, allows a proportionate tolerance — one edit for short keywords, two for longer ones — and this expresses the intuition that an attacker imitating a longer name has more room in which to hide a difference.
+Finally, the de-confusion map is applied on both sides of the comparison, and the two disjuncts of the typo test are not redundant. The first catches near-misses in ordinary orthography, such as a transposed or omitted letter. The second catches the case in which the domain is not a near-miss at all but an exact match once visual substitutions are undone — the string paypa1 is at edit distance one from paypal, but micros0ft is exactly microsoft under δ, and the second disjunct is what recognises it as an impersonation rather than a coincidence.
+[Heading2] 3.6 Functional Requirements
+
+Table 3.3 states the functional requirements, each traceable to an objective in Section 1.3.
+Table 3.3: Functional Requirements
+Ref
+Requirement
+FR1
+The system shall accept a URL or the text of a message for analysis.
+FR2
+The system shall return a risk score in the range 0–100 and a verdict band for every analysis.
+FR3
+The system shall return, for every analysis, an itemised list of each signal that fired, with its weight, category and a plain-language reason.
+FR4
+The system shall extract every link contained in a submitted message and analyse each in its own right, reporting the verdict of each.
+FR5
+The system shall map the signals that fired onto the micro-lessons that teach them and present these with the result.
+FR6
+The system shall permit analysis without an account and shall not persist such an analysis.
+FR7
+The system shall persist analyses performed by an authenticated user and provide a history that may be reviewed, reopened and deleted.
+FR8
+The system shall award experience points and badges for detection and learning activity, computed on the server.
+FR9
+The system shall provide micro-lessons and quizzes, and record quiz attempts and lesson completion.
+FR10
+The system shall provide registration, e-mail verification, authentication and role-based authorisation.
+FR11
+The system shall provide administrators with content management, user management, and learning and detection analytics.
+FR12
+The system shall expose the rule catalogue in a read-only form so that its reasoning may be inspected.
+FR13
+The system shall optionally consult an external reputation service where configured, and shall degrade silently to offline rules where it is not available.
+[Heading2] 3.7 Non-Functional Requirements
+
+Table 3.4 states the non-functional requirements. Several are direct consequences of the argument of Chapter Two rather than generic quality attributes, and are marked accordingly.
+Table 3.4: Non-Functional Requirements
+Ref
+Attribute
+Requirement
+NFR1
+Explainability
+Every point of every score shall be attributable to exactly one named rule, and that attribution shall be displayed to the user.
+NFR2
+Determinism
+An identical input shall always produce an identical score, verdict and justification.
+NFR3
+Availability
+The detection engine shall function with no network access; no external service shall be on the critical path of a scan.
+NFR4
+Privacy
+Artefacts submitted anonymously shall not be persisted, and no artefact shall be transmitted to a third party unless the operator has explicitly enabled enrichment.
+NFR5
+Performance
+An analysis shall complete within a few hundred milliseconds on commodity hardware, the engine performing no input/output.
+NFR6
+Integrity
+All rewards shall be computed server-side and shall not be forgeable from the client.
+NFR7
+Security
+Passwords shall be stored only as salted hashes; tokens shall be stored as hashes, be single-use and expire; administrative endpoints shall be role-guarded.
+NFR8
+Maintainability
+Rules, weights, brands and keyword lists shall be data rather than logic, so that the catalogue may be extended without altering control flow.
+NFR9
+Extensibility
+A typed extension point shall exist at which a machine-learning second opinion may be added without modification to the rules.
+NFR10
+Usability
+The heuristic nature of the verdict shall be stated on every result; the interface shall be responsive and operable on a mobile device.
+NFR11
+Testability
+The engine shall be free of framework and infrastructure dependencies so that it may be tested in isolation.
+[Heading2] 3.8 Output Specification
+
+The principal output of the system is the explained scan result. It comprises the artefact as submitted and its type; the risk score as an integer from 0 to 100; the verdict band; the itemised list of triggered signals, each carrying its label, category, weight, a general explanation of the trick and a specific note of why it fired on this artefact; for a message, the list of extracted links with the score, verdict and signals of each; and the list of recommended micro-lessons.
+The result is rendered so that the verdict and score are apprehensible at a glance, the itemisation is available immediately beneath, and the statement that the verdict is heuristic is present on every result without exception.
+Secondary outputs are the scan history, which lists an authenticated user’s past analyses and permits any to be reopened in full or deleted; the progress and achievement views, reporting experience, level, badges and streak; the quiz result, reporting score, percentage and experience awarded; and the administrative analytics, reporting scan volume, the distribution of verdicts, the most frequently triggered signals, and learning engagement, together with the read-only rule catalogue required by FR12. Every output is delivered as JSON over HTTPS and rendered by the single-page application; representative renderings are presented in Chapter Four.
+[Heading1] CHAPTER FOUR: IMPLEMENTATION, TESTING AND RESULT
+
+[Heading2] 4.1 Introduction
+
+This chapter reports the realisation of the design specified in Chapter Three. It describes the implementation and the technologies employed, presents the delivered features through the running interface, states the requirements for deployment and the procedures for operation, and then reports the testing of the system at two levels: the unit-level evaluation of the detection engine against a labelled corpus, and the application-level verification of the platform as a whole. It closes with a discussion of the results, in which the central result — a perfect score on the corpus — is examined critically rather than merely reported, since what such a result can and cannot establish is itself a finding of this study.
+[Heading2] 4.2 System Implementation
+
+The system was implemented as the three-tier application specified in Section 3.4.2. The technologies employed are listed in Table 4.1, each with the reason for its selection.
+Table 4.1: Implementation Technology Stack
+Layer
+Technology
+Reason for selection
+Presentation
+React 18 with Vite
+Component model suited to the itemised result view; fast build and development tooling
+Styling
+Tailwind CSS
+Consistent, responsive styling required by NFR10 without bespoke stylesheets
+Application
+NestJS on Node.js
+Modular architecture that isolates the detection module cleanly from the rest of the API
+Language
+TypeScript
+Static typing across engine, API and client; the typed engine interfaces are themselves a deliverable
+Persistence
+PostgreSQL 16
+Relational integrity for the schema of Figure 3.4; native JSON column for the stored result document
+Data access
+TypeORM
+Entity mapping and migrations; keeps the engine free of persistence concerns
+Authentication
+JWT with bcrypt
+Stateless authorisation; salted password hashing per NFR7
+Testing
+Jest
+Unit testing of the framework-free engine in isolation per NFR11
+The organising principle of the implementation is the one established in Section 3.4.2 and carried through every model in Chapter Three: the detection engine is a self-contained module that imports nothing from the surrounding framework. It is a set of pure functions — analyzeUrl, analyzeMessage and the analyze entry point that routes between them — over plain TypeScript types, performing no input or output. The NestJS service composes this engine with the repository and the gamification engine; the controller exposes it over HTTP and enforces authorisation.
+This arrangement satisfies NFR2, NFR3 and NFR11 simultaneously and by construction rather than by discipline: the engine cannot perform a network call or touch the database because it holds no reference through which it could.
+The catalogue is implemented as data, satisfying NFR8. Each signal is a record carrying its identifier, label, explanation, weight, category and associated lesson identifiers; the brand catalogue, the suspicious-TLD list, the shortener list and the credential-keyword list are likewise arrays. A new brand or a re-tuned weight is therefore a change to data and not to control flow, which is the property that allows the catalogue to be extended by future work without touching the engine.
+[Heading2] 4.3 Features of the System
+
+The delivered features are presented below through the running interface. The detection features are treated first and at greatest length, in keeping with their primacy in the study.
+[Heading3] 4.3.1 Public Detection
+
+The landing page presents the detector immediately and without requiring an account, in accordance with FR6 and the design position of Section 3.4.2. A visitor may paste a URL or a message and receive a full analysis; nothing is stored. Figure 4.1 shows the landing page and its embedded detector.
+Figure 4.1: Landing Page with the Public Detector
+[Heading3] 4.3.2 The Explained Result
+
+The explained result is the centre of the system and the concrete realisation of its thesis. Figure 4.2 shows the analysis of a look-alike URL. The verdict and score are presented first, for immediate apprehension, and beneath them the itemised justification lists every signal that fired, each with its weight, its category and the specific reason it fired on this artefact. The heuristic nature of the verdict is stated on the result, satisfying NFR10.
+Figure 4.2: Explained Result of a URL Scan
+This view is where the study’s claim becomes visible. Each line of the justification is at once a component of the score and a statement of a general principle: that a domain one edit from a bank’s real domain is an impersonation, that a high-risk top-level domain is a warning sign, that the absence of HTTPS on a page soliciting credentials is dangerous. The user is not told merely that the artefact is dangerous; they are shown the reasoning by which that conclusion was reached, and can carry each principle forward. The related lessons drawn from the fired signals appear alongside, so that the explanation leads directly into the instruction.
+[Heading3] 4.3.3 Message Analysis with Embedded Links
+
+Figure 4.3 shows the analysis of a message. The message’s own signals — the solicitation of a credential, the urgency, the impersonal greeting — are itemised, and, separately, the link extracted from the message is analysed in its own right and its verdict reported, the bounded transfer of Section 3.5.5 shown as one further line in the justification. The user sees both the language of the message and the destination of its link accounted for.
+Figure 4.3: Message Scan with an Extracted Link
+[Heading3] 4.3.4 Scan History
+
+An authenticated user’s analyses are persisted and presented as a history, satisfying FR7. Any past scan may be reopened in full — the stored result document preserves the justification exactly as it was shown — or deleted. Figure 4.4 shows the history.
+Figure 4.4: Scan History
+[Heading3] 4.3.5 Learning, Dashboard and Achievements
+
+The learner dashboard, Figure 4.5, consolidates detection and learning activity: recent scans, progress through the lessons, and current experience, level and streak. The achievements view, Figure 4.6, presents the badges, among which the detection badges — First Catch, Sharp Detector, Scan Veteran and Threat Hunter — sit alongside the learning badges, expressing at the level of reward the study’s position that detection is a first-class activity and not an adjunct to instruction.
+Figure 4.5: Learner Dashboard
+Figure 4.6: Achievements and Detection Badges
+The gamification economy is calibrated in accordance with the constraint drawn from Self-Determination Theory in Section 2.3.4. A scan awards eight experience points and catching a genuine threat — a verdict of Likely Phishing or Dangerous — awards a further seven, while lessons and quizzes award more. The reward for detection is deliberately smaller than the reward for learning, so that the economy cannot be farmed by mechanical scanning and continues to point the user towards the instruction that is the loop’s purpose. All rewards are computed on the server, satisfying NFR6.
+[Heading3] 4.3.6 Administration and Analytics
+
+The administrative subsystem provides content and user management and the analytics required by FR11. The detection analytics, Figure 4.7, report scan volume, the distribution of verdicts and the most frequently triggered signals, which together indicate which deceptions are most prevalent among users and therefore which lessons matter most. The read-only rule catalogue required by FR12 is exposed here, so that the system’s reasoning may be inspected in full.
+Figure 4.7: Administrative Detection Analytics
+[Heading2] 4.4 System Requirements
+
+The requirements for building and operating the system are as follows. Development and deployment require Node.js version 18 or later and a PostgreSQL 16 server. The two applications are built with their respective toolchains and served as a static bundle and a Node process. The optional Safe Browsing enrichment requires an API key; in its absence the system operates fully on its offline rules, in accordance with NFR3. For the client, any current browser on a device with network access to the API is sufficient; the interface is responsive and operable on a mobile device, as required by NFR10. No specialised hardware, and in particular no accelerator, is required, because the engine performs no model inference.
+[Heading2] 4.5 Operational Procedures
+
+The system supports three principal procedures, corresponding to its three actors. A visitor navigates to the platform, submits a URL or a message on the landing page, and receives an explained verdict together with the lessons the fired signals imply; no further action is required and nothing is retained. A learner additionally registers and verifies an e-mail address, after which every scan is persisted to a personal history and contributes to experience, badges and streak, and the lessons and quizzes become available. An administrator authenticates with an administrative role and gains the management and analytics views.
+The procedures for installation, seeding and running the system are documented with the source code. The demonstration environment is seeded with content and with two accounts, one administrative and one learner, so that every procedure may be exercised immediately.
+[Heading2] 4.7 System Testing
+
+Testing was conducted at two levels. The detection engine, as the component on which the validity of every other depends, was evaluated against a labelled corpus at the unit level. The platform as a whole was then verified at the application level. The two are reported in turn.
+[Heading3] 4.7.1 Evaluation of the Detection Engine
+
+A corpus of twenty labelled artefacts was assembled: thirteen URLs and seven messages, comprising twelve phishing artefacts and eight legitimate ones. The corpus was drawn from the authentic artefacts collected during requirements analysis (Section 3.3.1) together with known-legitimate references. Each case declares not an exact expected score but an accepted verdict band, a labelling protocol adopted deliberately so that the weights may be re-tuned without invalidating the corpus; a case passes if the engine’s verdict falls in the declared band. The corpus is exercised by the engine’s automated test suite. Its composition and representative members are given in Table 4.2.
+Table 4.2: Detection-Engine Test Corpus Results
+Class
+n
+Representative artefacts
+Expected verdict
+Result
+Legitimate URL
+5
+gtbank.com/login; paypal.com/signin; google.com; a Gmail deep link; a GitHub repository
+Safe
+All correct
+Phishing URL
+8
+paypa1.com/login; micros0ft-alerts.net; gtbank-secure.tk; the @-trick; a raw-IP login; a brand-in-subdomain chain
+Suspicious → Dangerous
+All correct
+Legitimate message
+3
+a lunch plan; a shipping notice; a standup reminder
+Safe
+All correct
+Phishing message
+4
+a vishing account-officer script; a BVN-block smishing text; an MTN prize lure; a fake job offer
+Suspicious → Dangerous
+All correct
+The engine returned a verdict in the correct band for all twenty cases. Read as a binary classifier over the malicious-or-not distinction, this yields twelve true positives, eight true negatives, and no false positives or false negatives, and hence an accuracy, precision, recall and F₁ score each equal to 1.00. Figure 4.8 presents the confusion matrix and corpus composition together with the derived measures.
+Figure 4.8: Confusion Matrix and Corpus Composition
+The proper interpretation of this result is deferred to Section 4.8.3, where it is examined critically. It is stated here only that the numbers above are correct and that, on their own, they mean less than they appear to.
+[Heading3] 4.7.2 Application-Level Verification
+
+Beyond the engine, the platform as a whole was verified through the activities in Table 4.4. These establish that the system builds, renders and operates end to end, and that the engine’s behaviour observed in isolation is preserved when it is reached through the full stack.
+Table 4.4: Application-Level Verification Activities
+Activity
+Method
+Outcome
+Production build of the API
+NestJS build of the TypeScript sources
+Compiles with no error
+Production build of the client
+Vite production build of the React application
+Builds and bundles with no error
+Screen rendering
+Automated headless render of every route in both learner and administrator roles
+All screens render; the figures in this chapter are drawn from these renders
+Database schema
+Migration applied to a clean PostgreSQL instance
+All eight tables created as specified in Figure 3.4
+End-to-end scan
+A scan performed through the running client against the live API and database
+Score, verdict and justification match the engine’s isolated output; an authenticated scan persists and awards experience
+Public/authenticated divergence
+The same artefact submitted anonymously and while signed in
+Identical verdict; only persistence and reward differ, confirming the design of Section 3.5.2
+The final activity in the table is the most important of the application-level checks, because it verifies the property on which the integrity of the whole design rests: that identity affects only whether a scan is recorded and rewarded, never the verdict itself.
+[Heading2] 4.8 Result and Discussion
+
+[Heading3] 4.8.1 Restatement of the Result
+
+The engine assigned the correct verdict band to every artefact in the corpus, and the platform built, rendered and operated end to end with the engine’s behaviour preserved across the full stack. Table 4.3 records representative scans with their scores and the principal signals responsible, so that the reasoning behind the verdicts is visible rather than merely asserted.
+Table 4.3: Representative Scan Results
+Artefact
+Score
+Verdict
+Principal signals
+https://www.gtbank.com/login
+0
+Safe
+None — registrable domain is on the brand allowlist
+http://paypa1.com/login
+52
+Likely Phishing
+Look-alike domain; no HTTPS on a sensitive page
+http://micros0ft-alerts.net/verify
+48
+Suspicious
+Look-alike (microsoft under de-confusion); no HTTPS
+http://gtbank-secure.tk/account/update
+100
+Dangerous
+Look-alike; planted security word; high-risk TLD; credential path; no HTTPS (Σ = 104, capped)
+http://gtbank.com@evil-login.xyz/verify
+≥ 75
+Dangerous
+The @-trick; the true host is evil-login.xyz
+Vishing account-officer script
+≥ 50
+Likely Phishing
+Vishing script; credential solicitation; urgency
+BVN-block smishing text with a link
+≥ 75
+Dangerous
+Smishing; credential solicitation; urgency; worst embedded link transferred
+[Heading3] 4.8.2 Assessment Against the Objectives
+
+The result is now assessed against the objectives of Section 1.3. The first objective, a transparent and fully attributable scoring model, is met: the additive capped model of Section 3.5.5 is implemented, and the itemised result of Figure 4.2 demonstrates the attribution in the interface. The second, a signal catalogue covering structural, linguistic and locally specific deceptions, is met: the twenty-three signals of Appendix II include the vishing, smishing and reward-bait scripts drawn from the collected artefacts.
+The third objective, an offline and deterministic engine with a typed extension seam, is met and was verified by the build and end-to-end activities of Table 4.4. The fourth, the integration of detection with contextual learning and server-authoritative reward, is realised in the mapping from fired signals to lessons and in the detection badges and experience economy. The fifth, the surrounding platform, is delivered in full. The sixth, evaluation, is the subject of this chapter.
+[Heading3] 4.8.3 Critical Interpretation of the Perfect Score
+
+A perfect score on an evaluation corpus should invite suspicion rather than satisfaction, and this study treats it accordingly. The correct reading of the result in Section 4.7.1 rests on a single fact about how the evaluation was constructed: the corpus is small, and it was authored by the researcher alongside the very rules it exercises. The cases were, in effect, chosen to be the cases the rules were written to catch. Under those conditions a perfect score is close to the expected outcome, and it demonstrates something real but narrow.
+What it does establish is conformance to specification. It shows that each rule fires on the inputs it was designed to fire on and remains silent on the inputs it was designed to ignore; that the scoring arithmetic, the capping, the banding and the bounded link transfer behave as specified; that the allowlist guard correctly prevents legitimate brand domains from being flagged as impersonations of themselves; and that no legitimate artefact in the corpus was misclassified, which is a meaningful check on the false-positive behaviour that most threatens a tool’s usefulness. This is the internal validity of the engine, and it is a necessary condition for anything further.
+What it does not establish is generalisation. Because the corpus and the rules share an author and an origin, the evaluation cannot distinguish a rule set that captures the true structure of phishing from one that has merely been fitted to twenty familiar examples. The result is silent on how the engine would perform against phishing it has never seen, against artefacts constructed by an adversary who knows the rules and evades them, or against the natural distribution of legitimate artefacts, some of which will possess innocent features that the rules penalise and will therefore be false positives. No claim about accuracy in the wild can be drawn from this evaluation, and none is made.
+The distinction matters enough to state as a principle: an evaluation authored with the artefact it evaluates measures conformance, and only an independent evaluation can measure generalisation. This is a limitation of the study’s evaluation and not a defect of the engine, but it bounds precisely what has been shown, and it directly motivates the first recommendation of Section 5.4. It is reported prominently, on the evaluation figure itself, because a result presented without its limits would misrepresent the work.
+[Heading3] 4.8.4 Reflection on the Design Propositions
+
+The three design propositions of Section 1.5 may now be revisited in the light of the result, subject to the same limits. The first, that an additive capped model over human-authored rules suffices to separate the classes across the corpus, held on the corpus without a trained classifier; its standing beyond the corpus is exactly the open question of Section 4.8.3.
+The second, that the reasoning can be surfaced as an itemised justification without loss of accuracy, held without qualification, since the justification is a by-product of the same computation that yields the verdict and cannot diverge from it. The third, that the fired signals suffice to select relevant instruction, held at the level of construction — every fired signal maps to at least one lesson — but its pedagogical sufficiency, namely whether the selected lesson actually improves the user’s judgement, is a claim about people rather than code and remains untested, as Section 5.4 records.
+[Heading1] CHAPTER FIVE: SUMMARY, CONCLUSION AND RECOMMENDATION
+
+[Heading2] 5.1 Introduction
+
+This chapter draws the study to a close. It summarises what was done and found, states the conclusions that may legitimately be drawn, and sets out recommendations for practice and for the future work that the study’s limits make necessary.
+[Heading2] 5.2 Summary
+
+The study began from an observation about two mature but separate traditions of defence against phishing. Awareness training is proactive but abstract, reaching the user before the decisive moment and decaying thereafter; automated detection is timely but opaque, acting at the decisive moment but withholding the reasoning from which a user might learn, and typically depending on a remote service and modelling a generic rather than a local threat. The study argued that the boundary between the two is maintained not by necessity but by the habit of discarding a detector’s reasoning, and that explanation is the bridge: a detector that can say why it fired is already an instrument of instruction, and every detection is therefore a teachable moment.
+From this position the study designed, implemented and evaluated an explainable phishing-detection platform in which gamified micro-learning is a consequence of detection rather than a parallel feature. A rule-based engine applies twenty-three transparent signals — covering brand impersonation, URL obfuscation, credential harvesting and the vishing, smishing and reward-bait scripts specific to the Nigerian context — to a submitted URL or message, returning a bounded and fully attributable risk score, an interpretable verdict, an itemised justification, a recursive analysis of every embedded link, and the lessons that teach whichever trick was caught.
+The engine was formalised through an additive capped scoring model, a bounded link-transfer function, and an adaptive-threshold look-alike algorithm, and was isolated as a framework-free, offline and deterministic module. The platform was modelled with the full complement of design diagrams and realised on React, NestJS and PostgreSQL.
+Evaluation against a labelled corpus of twenty artefacts returned the correct verdict on every case, and application-level verification confirmed that the system builds, renders and operates end to end with the engine’s behaviour preserved across the stack. The study was careful to establish that the corpus result demonstrates conformance to specification and not generalisation, a distinction it treats as one of its findings.
+[Heading2] 5.3 Conclusions
+
+Three conclusions follow, each stated with the scope the evidence supports.
+First, an explainable, rule-based detector tuned to a specific local threat surface can be built, and its explanations can be made to serve simultaneously as instruction. The itemised result is not a report about the verdict but the verdict itself, decomposed; the same computation yields both. This establishes the study’s central architectural claim as realisable.
+Second, a scoring model that is deliberately simple — additive, monotone and bounded over named rules — is sufficient to separate phishing from legitimate artefacts across the study’s corpus, and it purchases, in exchange for a ceiling on sophistication, the property of complete attributability on which the pedagogical claim depends. Whether that sufficiency extends beyond the corpus is not established by this study and is the principal open question it leaves.
+Third, coupling detection to education so that the former schedules the latter is both feasible and, in the light of the theory reviewed in Chapter Two, well motivated. The construction works: every signal that fires selects the instruction that addresses it. Whether the loop durably improves human judgement is a further and empirical question that this study frames but does not answer.
+The honest form of the overall conclusion is therefore this. The study set out to show that explanation can bridge detection and education, and it has shown that the bridge can be built and that traffic crosses it in the intended direction. It has not shown, and did not have the means to show, that people who cross the bridge arrive permanently changed. That is the right task for the work that follows.
+[Heading2] 5.4 Recommendations
+
+The recommendations fall into two groups: those that address the limits established during the study, and those that extend its reach.
+The first and most important recommendation follows directly from Section 4.8.3. The engine should be evaluated against a large, independent corpus of phishing and legitimate artefacts that the researcher did not author, drawn from public repositories of reported phishing and from live local sources, so that generalisation — as distinct from conformance — can be measured, and so that the false-positive rate against the natural distribution of legitimate artefacts, which the present evaluation cannot estimate, can be established. This is the single change that would most strengthen the study’s claims.
+Second, the machine-learning second opinion, for which the architecture already provides a typed and documented seam, should be implemented and offered as a complement to the rules rather than a replacement for them, so that the discrimination of a learned model and the explanatory fidelity of the rules may be combined. The rules would continue to furnish the explanation while the model would furnish a check against the deceptions the rules do not anticipate.
+Third, and most consequentially for the study’s deeper thesis, a longitudinal study with human participants should be conducted to measure whether the detection–education loop produces a durable improvement in the ability to recognise phishing unaided, and specifically whether it does so without inducing the over-reliance that Section 2.3.5 identifies as the intervention’s principal risk. This is the empirical question the present study frames but cannot resolve, and it is the proper test of the loop’s pedagogical claim.
+Beyond these, the study recommends a number of extensions to the artefact: broadening detection to include the sandboxed retrieval and rendering of a link’s destination page, which would move the system from the analysis of an artefact towards the analysis of its target; the safe inspection of attachments; the packaging of the detector as a browser extension so that it may act at the point of exposure rather than on demand; and the continued expansion of the brand, keyword and top-level-domain lists, and the collection of further local scam scripts, so that the catalogue keeps pace with an adversary who does not stand still.
+Each of these extends coverage; none displaces the study’s core commitment, which is that whatever the detector concludes, it must be able to say why.
+[Heading1] REFERENCES
+
+Alkhalil, Z., Hewage, C., Nawaf, L., & Khan, I. (2021). Phishing attacks: A recent comprehensive study and a new anatomy. Frontiers in Computer Science, 3, 563060.
+Anti-Phishing Working Group. (2024). Phishing activity trends report. APWG.
+Basit, A., Zafar, M., & Abbas, H. (2023). Evolution of cybersecurity approaches against phishing attacks: A survey. Computers & Security, 132, 103293.
+Bitrián, P., Buil, I., Catalán, S., & Merli, D. (2024). Gamification in workforce training: Improving employees’ self-efficacy and information security and data protection behaviours. Journal of Business Research, 179, 114685.
+Calzarossa, M. C., Giudici, P., & Zieni, R. (2024). Explainable machine learning for phishing feature detection. Quality and Reliability Engineering International, 40(1), 362–373.
+Capuano, N., Fenza, G., Loia, V., & Stanzione, C. (2022). Explainable artificial intelligence in cybersecurity: A survey. IEEE Access, 10, 93575–93600.
+Fan, Z., Li, W., Laskey, K. B., & Chang, K.-C. (2024). Investigation of phishing susceptibility with explainable artificial intelligence. Future Internet, 16(1), 31.
+Jayatilaka, A., Arachchilage, N. A. G., & Babar, M. A. (2024). Why people still fall for phishing emails: An empirical investigation into how users make email response decisions. In Proceedings of the Symposium on Usable Security and Privacy (USEC) 2024.
+Khadka, K., Ullah, A. B., Ma, W., Marroquin, E. M., & Alem, Y. (2023). A survey on the principles of persuasion as a social engineering strategy in phishing. In Proceedings of the 2023 IEEE 22nd International Conference on Trust, Security and Privacy in Computing and Communications (TrustCom) (pp. 1631–1638). IEEE.
+Mangut, P. N., & Datukun, K. A. (2021). The current phishing techniques – Perspective of the Nigerian environment. World Journal of Innovative Research, 10(1), 34–44.
+Sikolia, D., Biros, D., & Zhang, T. (2023). How effective are SETA programs anyway: Learning and forgetting in security awareness training. Journal of Cybersecurity Education, Research and Practice, 2023(1).
+Zieni, R., Massari, L., & Calzarossa, M. C. (2023). Phishing or not phishing? A survey on the detection of phishing websites. IEEE Access, 11, 18499–18519.
+[Heading1] APPENDICES
+
+[Heading2] Appendix I: Requirements Questionnaire
+
+The following instrument was administered during requirements analysis (Section 3.2) to establish user-facing requirements and to confirm the prevalence of the local scam scripts among the target population. Responses were anonymous.
+Section A — Background. Age band; frequency of internet and mobile-banking use; devices used.
+Section B — Exposure. Have you received: a call from a supposed bank officer requesting an OTP or PIN; an SMS stating that your BVN or NIN was blocked; a message announcing a prize you had not entered for; a link asking you to "confirm" or "reactivate" an account; an unexpected job offer requiring personal details or a fee? For each: never, once, or several times.
+Section C — Confidence and behaviour. How confident are you that you can identify a phishing link or message (five-point scale)? When unsure about a link, what do you do? Have you, or anyone you know, lost money or access to an account through such a message?
+Section D — Receptiveness. Would an instant, explained verdict on a suspicious link or message be useful to you? Would you prefer to learn to spot phishing through short, interactive exercises or through conventional written material? Would points, badges and streaks make you more likely to keep learning?
+[Heading2] Appendix II: The Complete Signal Catalogue
+
+The twenty-three signals of the detection engine are listed below with their exact weights and categories, exactly as implemented. The fifteen URL signals are given first, then the eight message signals. This is the full catalogue summarised by category in Table 3.2 and referenced throughout Chapter Three.
+Table II.1: URL Signals
+Identifier
+Label
+Weight
+Category
+url-dangerous-scheme
+Dangerous URL scheme
+45
+obfuscation
+url-lookalike-brand
+Look-alike / typosquatting domain
+40
+brand-impersonation
+url-homoglyph
+Homoglyph / punycode domain
+30
+obfuscation
+url-ip-host
+Raw IP address instead of a domain
+30
+url-structure
+url-userinfo-at
+The "@" trick in the URL
+28
+obfuscation
+url-brand-in-subdomain
+Trusted brand hidden in the subdomain
+26
+brand-impersonation
+url-credential-keyword-host
+Security word planted in the domain
+22
+credential-harvesting
+url-percent-encoding
+Percent-encoding used to disguise the host
+20
+obfuscation
+url-suspicious-tld
+High-risk top-level domain
+18
+url-structure
+url-excessive-subdomains
+Excessive subdomains
+18
+url-structure
+url-high-entropy-host
+Random-looking host name
+15
+obfuscation
+url-shortener
+Link shortener hiding the destination
+15
+obfuscation
+url-credential-path
+Credential-harvesting path
+12
+credential-harvesting
+url-no-https
+No HTTPS on a sensitive page
+12
+transport-security
+url-excessive-length
+Unusually long URL
+8
+url-structure
+Table II.2: Message Signals
+Identifier
+Label
+Weight
+Category
+msg-embedded-bad-url
+Contains a suspicious link (bounded transfer τ)
+≤ 35
+url-structure
+msg-vishing
+Fake bank or telco call script (vishing)
+32
+vishing
+msg-credential-solicitation
+Asks for passwords, OTP, PIN, BVN or NIN
+30
+credential-harvesting
+msg-smishing
+Fake alert, BVN/NIN or job-offer scam (smishing)
+28
+smishing
+msg-reward-bait
+Prize, lottery or "you have won" bait
+24
+reward-bait
+msg-urgency
+Urgency and threat pressure
+18
+urgency
+msg-generic-greeting
+Generic, impersonal greeting
+10
+social-engineering
+msg-formatting-anomaly
+Grammar and formatting red flags
+8
+formatting
+The transfer weight of msg-embedded-bad-url is not fixed but is the bounded function τ of Section 3.5.5, contributing 35, 25, 12 or 0 points according to whether the worst link in the message is Dangerous, Likely Phishing, Suspicious or none of these.
+[Heading2] Appendix III: Detection API Endpoints
+
+The detection subsystem exposes the following HTTP endpoints. The public scan is unauthenticated and is never persisted; the saved scan requires authentication and is persisted and rewarded; the administrative endpoint is guarded by role.
+Table III.1: Detection API Endpoints
+Method and path
+Access
+Purpose
+POST /api/detection/scan
+Public
+Analyse an artefact and return the explained result; nothing is stored
+POST /api/detection/scans
+Authenticated
+Analyse, persist to the user’s history and award experience and badges
+GET /api/detection/scans
+Authenticated
+List the user’s scan history
+GET /api/detection/scans/:id
+Authenticated
+Retrieve one stored scan in full, including its justification
+DELETE /api/detection/scans/:id
+Authenticated
+Delete one scan from the history
+GET /api/detection/me/stats
+Authenticated
+Return the user’s detection statistics
+GET /api/detection/rules
+Public
+Return the read-only rule catalogue (FR12)
+GET /api/detection/admin/stats
+Administrator
+Return aggregate detection analytics (FR11)

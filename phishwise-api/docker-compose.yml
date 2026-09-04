@@ -1,0 +1,26 @@
+# Spins up a PostgreSQL instance matching the defaults in .env.example.
+# Usage:
+#   docker compose up -d        # start the database in the background
+#   docker compose down         # stop it (data is preserved in the volume)
+#   docker compose down -v      # stop it AND wipe all data
+services:
+  db:
+    image: postgres:16
+    container_name: phishwise-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: phishwise
+      POSTGRES_PASSWORD: phishwise
+      POSTGRES_DB: phishwise
+    ports:
+      - "5432:5432"
+    volumes:
+      - phishwise-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U phishwise -d phishwise"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  phishwise-data:
