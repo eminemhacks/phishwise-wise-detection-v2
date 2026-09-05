@@ -15,7 +15,8 @@
     "seed": "ts-node -r tsconfig-paths/register src/database/seeds/run-seed.ts",
     "test:detection": "ts-node -r tsconfig-paths/register src/detection/__tests__/engine.spec.ts",
     "test:detection:phishdb": "ts-node -r tsconfig-paths/register src/detection/__tests__/engine.phishdb.spec.ts",
-    "update:blocklist": "node scripts/update-blocklist.js"
+    "update:blocklist": "node scripts/update-blocklist.js",
+    "update:message-blocklist": "node scripts/update-message-blocklist.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.4",

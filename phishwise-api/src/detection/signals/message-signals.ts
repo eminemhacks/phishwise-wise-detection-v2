@@ -12,7 +12,9 @@ import { SignalDef } from '../types';
 
 // ── Phrase banks (lowercased; matched as substrings / word-ish patterns) ──
 
-/** Pressure / threat language pushing the victim to act without thinking. */
+/** Pressure / threat language pushing the victim to act without thinking.
+ *  Expanded 2026-09 via it4lia 181k + phishing_pot mining: added Nigerian debit/lock + generic suspicious-activity
+ */
 export const URGENCY_PHRASES = [
   'act now', 'act immediately', 'act within', 'urgent', 'immediately',
   'as soon as possible', 'right away', 'within 24 hours', 'within 24hrs',
@@ -22,15 +24,25 @@ export const URGENCY_PHRASES = [
   'will be deactivated', 'will be blocked', 'will be terminated',
   'avoid deactivation', 'failure to', 'or your account', 'limited time',
   'verify immediately', 'confirm immediately', 'do not ignore',
+  // mined from 181k (phishing vs legit, FP <3%)
+  'suspicious activity', 'unusual sign-in', 'unusual activity',
+  'your account has been locked', 'your account is restricted',
+  'immediate action required', 'action required',
+  'security alert', 'secure your account',
 ];
 
-/** Requests for secrets that no legitimate institution asks for by message. */
+/** Requests for secrets that no legitimate institution asks for by message.
+ *  Expanded via 181k mining: added Nigerian re-validation + generic auth
+ */
 export const CREDENTIAL_PHRASES = [
   'password', 'otp', 'one time password', 'one-time password', 'pin',
   'card number', 'cvv', 'atm pin', 'bvn', 'nin', 'bank verification number',
   'national identification number', 'account number and pin', 'security code',
   'verification code', 'token', 'internet banking password', 'login details',
   'confirm your card', 'update your bvn', 'update your nin', 'validate your bvn',
+  // mined
+  're-validate your bvn', 'revalidate your account', 'update your account information',
+  'confirm your identity', 'verify your identity', 'authentication required',
 ];
 
 /** Reward / prize / advance-fee bait. */
@@ -157,5 +169,14 @@ export const MESSAGE_SIGNALS: SignalDef[] = [
     weight: 35,
     category: 'smishing',
     lessons: ['smishing-vishing', 'spot-phishing-email'],
+  },
+  {
+    id: 'msg-known-phishing-message',
+    label: 'Known phishing message (offline blocklist)',
+    explanation:
+      'This exact message appears in an offline snapshot of 181k phishing emails (Nazario + Nigerian Fraud + phishing_pot). Exact hash match against curated phishing corpora — treated as high-confidence.',
+    weight: 35,
+    category: 'smishing',
+    lessons: ['smishing-vishing', 'incident-response-basics'],
   },
 ];

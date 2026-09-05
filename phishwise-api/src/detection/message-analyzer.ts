@@ -21,6 +21,8 @@ import {
   URGENCY_PHRASES,
   VISHING_PHRASES,
 } from './signals/message-signals';
+import { PHISHING_MESSAGE_BLOCKLIST } from './signals/phishing-messages-blocklist';
+import { normalizeMessageForHash } from './normalize';
 
 const SIG = new Map(MESSAGE_SIGNALS.map((s) => [s.id, s]));
 
@@ -110,6 +112,12 @@ export function analyzeMessage(rawInput: string): MessageAnalysis {
   if (greet) add(fire('msg-generic-greeting', `opens with \u201c${greet}\u201d`));
 
   if (hasFormattingAnomaly(input)) add(fire('msg-formatting-anomaly'));
+
+  // ── Known phishing message (offline blocklist, 181k) ──────────────
+  const msgHash = normalizeMessageForHash(input).hash;
+  if (PHISHING_MESSAGE_BLOCKLIST.has(msgHash)) {
+    add(fire('msg-known-phishing-message', `exact hash match ${msgHash.slice(0, 8)}… in offline message blocklist`));
+  }
 
   // ── Embedded URLs ───────────────────────────────────────────────
   const urls = extractUrls(input);
